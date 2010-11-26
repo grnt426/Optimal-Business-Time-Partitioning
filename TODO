@@ -1,13 +1,19 @@
 ########################
 Immediate TODO:
-
-
-
-
-
-
-
-
+				> Create Agent class
+					> Needs methods to read, manipulate, and replace
+					chromosomal sequence
+					> toString() methods
+				> Simulation Engine
+					> Takes a list of Agents and calculates all the agents'
+					actions one day at a time per-agent
+					> Methods to alter Environment-Level variables
+				> Mutataion, Crossover, and creation of agents
+				> Main class to instantiate Simulation threads
 
 ########################
 Eventual Updates:
+				> GUI to display End-Game results, and control flow of
+				simulation
+					> Control to alter the state of the Environement
+					> Ability to save/load agent, environment, simulation data
