@@ -1,0 +1,64 @@
+Project Name:	Optimal Business Time Partitioning
+
+Description:	An agent will contain all the information about which actions
+				to perform each day.  Each day a total of 16 actions can be
+				performed, with 8 different actions: Search for Raw Materials
+				(RM), Risky Search for RMs, Produce Low-Quality Goods 
+				(LQG), Produce Medium-Quality Goods (MQG), Produce High-Quality
+				Goods (HQG), Sell Goods, Sell Goods in Risky Environment, and
+				Store Unused Goods (UG). After 100 days, all the agents in a
+				generation will be assessed for their overall performance.
+				A new generation of agents is spawned and the process repeated
+				until end-conditions are met (time, generation count, or 
+				plataeu	of performance).  All unused raw materials must be
+				stored by the end of the day.
+				
+########################
+Technical Details of Algorithm*:
+				> Performace will be rated based on trending revenue growth.
+					> Highly Likely to change or other factors thrown in
+				> Elite agents will be carried over to the next generation
+				untouched, while all other agents will either be replaced with
+				newly generated agents, agents of mixed chromosomes, or mutated
+				agents. 
+				> Each chromosome will be composed of 16 3-bit strings to
+				represent the division of time among the 8 different tasks.
+				Crossover will involve taking 2+ parents and taking 1+
+				subsequent series of tasks and recombining them. Mutation will
+				be the random application of bit-flipping.
+					> Actions are encoded as all values between 000:111
+				> All "Risky" actions have predetermined and unchanging
+				"Lucky Days".  In this way, if there is a 50% chance for a
+				risky investment to pay off, then exactly 50 of the 100 days
+				will be "Lucky Days", and the others failures.  The exact
+				distribution of the lucky days is determined either as random
+				placement, alternating, all early, all late, or a mix of any of
+				the stated distribution methods.
+					> Successful risky searches will give higher RMs at lower
+					costs.
+					> Successful risky sales will give higher returns.
+					> Unsuccessful risky investments will simply have the
+					opposite effect.
+				> LQGs differ from MQGs and HQGs in the number of RMs consumed
+				and the sale price obtained in the market.
+				> If an agent fails to store UGs by the end of the day then all
+				UGs are lost during the next day.
+
+########################
+User Interface Details:
+				> The environment will be completely alterable at the user 
+				level, with possible alterable variables such as:
+					> Cost/Return on RMs and FGs
+					> exchange rate of RMs to Finished Goods (FGs)
+					> risky pay-offs and odds
+					> number of parents during pollination
+					> total number of agents per generation
+					> total number of elites carried over
+					> total number of "failed entrepeneurs" carried over
+					> total number of randomly generated agents added each
+					generation
+					> total number of days in a performance assessment period
+					> Possibly Others
+				> Start, Stop, Restart, Step, Save Agent Information, Save
+				Environment State, and Save Everything will all be actions
+				the user can perform on a simulation
