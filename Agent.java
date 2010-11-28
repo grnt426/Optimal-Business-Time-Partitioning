@@ -16,13 +16,16 @@ public class Agent{
 
 	//instance variables
 	ArrayList<Boolean> chromosome;
-
+	final static int MAX_CHROMOSOME_LENGTH = 48;
+	final static int MAX_GENE_LENGTH = 3;
+	
 	/*
 	* Creates an empty order queue
 	*/
 	public Agent(){
-		for(int i = 0; i < chromosome.size(); ++i){
-			chromosome.set(i, false);
+		chromosome = new ArrayList<Boolean>();
+		for(int i = 0; i < MAX_CHROMOSOME_LENGTH; ++i){
+			chromosome.add(false);
 		}
 	}
 	
@@ -33,5 +36,21 @@ public class Agent{
 	public ArrayList<Boolean> getChrome(){
 		return chromosome;
 	}
-
+	
+	public String toString(){
+		String s;
+		int i = 1;
+		
+		s = "{";
+		for(Boolean b : chromosome){
+			s += b ? "1":"0";
+			if(i % MAX_GENE_LENGTH == 0){
+				i = 0;
+				s += ", ";
+			}
+			i++;
+		}
+		s = s.substring(0, s.length()-2)+"}";
+		return s;
+	}
 }
