@@ -5,7 +5,7 @@ public class Environment{
 	//instance variables
 	int RM_COST, LQ_RATE, MQ_RATE, HQ_RATE, LQ_SALE, MQ_SALE, HQ_SALE,
 				MAX_RMS_PER_AC, MAX_LQ_PER_AC, MAX_MQ_PER_AC, MAX_HQ_PER_AC, 				MAX_SELL_PER_AC, MAX_LQSELL, MAX_MQSELL, MAX_HQSELL;
-	int ACTIONS_TOTAL;
+	int ACTIONS_TOTAL, current_day;
 	ArrayList<Agent> agents;
 	
 	/*
@@ -29,6 +29,7 @@ public class Environment{
 		MAX_LQSELL = 1500;
 		MAX_MQSELL = 1300;
 		MAX_HQSELL = 900;
+		current_day = 0;
 	}
 
 	/*
@@ -47,8 +48,8 @@ public class Environment{
 	
 	/*
 	* Processes a single business day for all agents, grabbing each agent's
-	* action during that time-slot.
-	*
+	* action during that time-slot, and forcing the agent to dump any unsaved
+	* RMs & FGs once the day is finished processed.
 	*/
 	public void simulateDay(){
 		for(Agent agent : agents){
@@ -150,9 +151,13 @@ public class Environment{
 				else if(action.equals("0111")){
 					agent.setCurrentlyStoring(true);
 				}
-				
-				//return;
 			}
+			
+			//throw away unsaved RMs/FGs
+			if(!agent.storingExcess())
+				agent.dumpGoods();
 		}
+		
+		current_day++;
 	}
 }

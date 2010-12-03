@@ -118,6 +118,13 @@ public class Agent{
 		return currently_storing;
 	}
 	
+	public void dumpGoods(){
+		rms = 0;
+		lqfg = 0;
+		mqfg = 0;
+		hqfg = 0;
+	}
+	
 	public String toString(){
 		String s;
 		int i = 1;
