@@ -2,11 +2,11 @@
 Immediate TODO:
 				> Create Agent class
 					> Needs methods to read, manipulate, and replace
-					chromosomal sequence
-					> toString() methods
+					chromosomal sequence [DONE]
+					> toString() methods [DONE]
 				> Simulation Engine
 					> Takes a list of Agents and calculates all the agents'
-					actions one day at a time per-agent
+					actions one day at a time per-agent [DONE]
 					> Methods to alter Environment-Level variables
 				> Mutataion, Crossover, and creation of agents
 				> Main class to instantiate Simulation threads
