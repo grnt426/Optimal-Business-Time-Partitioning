@@ -7,7 +7,6 @@ public class MainTester{
 		
 		//add some money and basic hard-coded actions
 		a.setMoney(50000);
-		a.setChrome("0000 0100 0101");
 		System.out.println(a);
 		
 		//testing default values
@@ -19,7 +18,9 @@ public class MainTester{
 		e.addAgent(a);
 		
 		//Simulate a single business day for all agents
-		e.simulateDay();
+		for(int i = 0; i < 100;++i){
+			e.simulateDay();
+		}
 		System.out.println("Printing the current state of the Agent");
 		System.out.println(a.printState());
 	}

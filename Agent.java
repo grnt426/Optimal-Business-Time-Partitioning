@@ -10,16 +10,17 @@
 */
 
 import java.util.ArrayList;
-
+import java.util.Random;
 
 public class Agent{
 
 	//instance variables
 	ArrayList<Boolean> chromosome;
-	final static int MAX_CHROMOSOME_LENGTH = 64;
-	final static int MAX_GENE_LENGTH = 4;
+	final static int MAX_CHROMOSOME_LENGTH = 48;
+	final static int MAX_GENE_LENGTH = 3;
 	int money, rms, lqfg, mqfg, hqfg;
 	boolean currently_storing;
+	Random gen = new Random();
 	
 	/*
 	* Creates an empty order queue
@@ -27,9 +28,10 @@ public class Agent{
 	public Agent(){
 		chromosome = new ArrayList<Boolean>();
 		for(int i = 0; i < MAX_CHROMOSOME_LENGTH; ++i){
-			chromosome.add(false);
+			chromosome.add(gen.nextBoolean());
 		}
 		currently_storing = false;
+		money = 50000;
 	}
 	
 	public Agent(ArrayList<Boolean> chromosome){
