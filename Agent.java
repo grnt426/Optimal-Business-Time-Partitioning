@@ -41,6 +41,15 @@ public class Agent{
 		return chromosome;
 	}
 	
+	public void setChrome(String chrome){
+		chromosome = new ArrayList<Boolean>();
+		for(Character c : chrome.toCharArray()){
+			if(c == ' ')
+				continue;
+			chromosome.add(c == '0' ? false : true);
+		}
+	}
+	
 	public int getMoney(){
 		return money;
 	}
@@ -61,12 +70,6 @@ public class Agent{
 		return hqfg;
 	}
 	
-	public int removeProducedLQ(int lq){
-		int new = lqfg > lq ? lq : lqfg;
-		
-		return ;
-	}
-	
 	public void setMoney(int money){
 		this.money = money;
 	}
@@ -79,8 +82,9 @@ public class Agent{
 		this.rms = rms;
 	}
 	
-	public void addRawMaterials(int rms){
+	public void adjustRawMaterials(int rms){
 		this.rms += rms;
+	}
 	
 	public void setProducedLQ(int lqfg){
 		this.lqfg = lqfg;
@@ -94,12 +98,24 @@ public class Agent{
 		this.hqfg = hqfg;
 	}
 	
-	public void addProducedLQ(int lqfg){
+	public void adjustProducedLQ(int lqfg){
 		this.lqfg += lqfg;
+	}
+	
+	public void adjustProducedMQ(int mqfg){
+		this.mqfg += mqfg;
+	}
+	
+	public void adjustProducedHQ(int hqfg){
+		this.hqfg += hqfg;
 	}
 	
 	public void setCurrentlyStoring(boolean store){
 		currently_storing = store;
+	}
+	
+	public boolean storingExcess(){
+		return currently_storing;
 	}
 	
 	public String toString(){
@@ -117,5 +133,13 @@ public class Agent{
 		}
 		s = s.substring(0, s.length()-2)+"}";
 		return s;
+	}
+	
+	public String printState(){
+		return "Money: " + getMoney() + "\nRMs: " + getRawMaterials() 
+			+ "\nLow-Quality FGs: " + getProducedLQ() 
+			+ "\nMedium-Quality FGs: " + getProducedMQ() 
+			+ "\nHigh-Quality FGs: " + getProducedHQ() + "\nStoring Excess: "
+			+ storingExcess();
 	}
 }
