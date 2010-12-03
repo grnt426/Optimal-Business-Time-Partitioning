@@ -16,8 +16,10 @@ public class Agent{
 
 	//instance variables
 	ArrayList<Boolean> chromosome;
-	final static int MAX_CHROMOSOME_LENGTH = 48;
-	final static int MAX_GENE_LENGTH = 3;
+	final static int MAX_CHROMOSOME_LENGTH = 64;
+	final static int MAX_GENE_LENGTH = 4;
+	int money, rms, lqfg, mqfg, hqfg;
+	boolean currently_storing;
 	
 	/*
 	* Creates an empty order queue
@@ -27,14 +29,77 @@ public class Agent{
 		for(int i = 0; i < MAX_CHROMOSOME_LENGTH; ++i){
 			chromosome.add(false);
 		}
+		currently_storing = false;
 	}
 	
 	public Agent(ArrayList<Boolean> chromosome){
 		this.chromosome = chromosome;
+		currently_storing = false;
 	}
 
 	public ArrayList<Boolean> getChrome(){
 		return chromosome;
+	}
+	
+	public int getMoney(){
+		return money;
+	}
+	
+	public int getRawMaterials(){
+		return rms;
+	}
+	
+	public int getProducedLQ(){
+		return lqfg;
+	}
+	
+	public int getProducedMQ(){
+		return mqfg;
+	}
+	
+	public int getProducedHQ(){
+		return hqfg;
+	}
+	
+	public int removeProducedLQ(int lq){
+		int new = lqfg > lq ? lq : lqfg;
+		
+		return ;
+	}
+	
+	public void setMoney(int money){
+		this.money = money;
+	}
+	
+	public void adjustMoney(int money){
+		this.money += money;
+	}
+	
+	public void setRawMaterials(int rms){
+		this.rms = rms;
+	}
+	
+	public void addRawMaterials(int rms){
+		this.rms += rms;
+	
+	public void setProducedLQ(int lqfg){
+		this.lqfg = lqfg;
+	}
+	
+	public void setProducedMQ(int mqfg){
+		this.mqfg = mqfg;
+	}
+	
+	public void setProducedHQ(int hqfg){
+		this.hqfg = hqfg;
+	}
+	
+	public void addProducedLQ(int lqfg){
+		this.lqfg += lqfg;
+	}
+	
+	public void setCurrentlyStoring(boolean store){
+		currently_storing = store;
 	}
 	
 	public String toString(){
