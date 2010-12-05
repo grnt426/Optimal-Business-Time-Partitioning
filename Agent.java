@@ -12,7 +12,7 @@
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Agent{
+public class Agent implements Comparable<Agent>{
 
 	//instance variables
 	ArrayList<Boolean> chromosome;
@@ -142,6 +142,15 @@ public class Agent{
 		}
 		s = s.substring(0, s.length()-2)+"}";
 		return s;
+	}
+	
+	public int compareTo(Agent a){
+		a = (Agent) a;
+		if(money < a.getMoney())
+			return -1;
+		if(money > a.getMoney())
+			return 1;
+		return 0;
 	}
 	
 	public String printState(){

@@ -10,6 +10,8 @@
 */
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Collections;
 
 public class BizSimMain{
 
@@ -21,7 +23,7 @@ public class BizSimMain{
 	
 	public BizSimMain(){
 	
-		for(int k = 0; k < 100; ++k){
+		for(int k = 0; k < 1; ++k){
 		
 			//create some test agents
 			ArrayList<Agent> agents = new ArrayList<Agent>();
@@ -48,26 +50,22 @@ public class BizSimMain{
 	
 		public void run(){
 		
-			//Process 100-days, print the best (or sets of best)
+			//Process 100-days
 			for(int i = 0; i<100; i++){
 				e.simulateDay();
 			}
 			
-			int mostMoney = 0;
-			ArrayList<Agent> winners = new ArrayList<Agent>();
-			for(Agent a : agents){
-				if(a.getMoney() > mostMoney && a.getMoney() != 50000
-						&& a.getMoney() > 1000){
-					mostMoney = a.getMoney();
-					winners.clear();
-					winners.add(a);
-				}
-				else if(a.getMoney() == mostMoney && mostMoney != 0)
-					winners.add(a);
-			}
+			//sort the results by money, descending
+			Collections.sort(agents);
+			Collections.reverse(agents);
 			
-			for(Agent a : winners)
+			
+			for(Agent a : agents)
 				System.out.println(a.getMoney());
+				
+			//now we need to select agents for crossover, mutation, and elites
+			
+			
 		}
 	}
 }
