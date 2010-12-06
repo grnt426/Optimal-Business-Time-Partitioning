@@ -8,8 +8,8 @@ Immediate TODO:
 					> Takes a list of Agents and calculates all the agents'
 					actions one day at a time per-agent [DONE]
 					> Methods to alter Environment-Level variables
-				> Mutataion, Crossover, and creation of agents
-				> Main class to instantiate Simulation threads
+				> Mutataion, Crossover, and creation of agents [DONE]
+				> Main class to instantiate Simulation threads [DONE]
 
 ########################
 Eventual Updates:
