@@ -9,6 +9,7 @@
 */
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Environment{
 
@@ -52,8 +53,12 @@ public class Environment{
 	/*
 	* 
 	*/
-	public void addAgents(ArrayList<Agent> a){
+	public void addAgents(List<Agent> a){
 		agents.addAll(a);
+	}
+	
+	public void purgeAgents(){
+		agents.clear();
 	}
 	
 	/*

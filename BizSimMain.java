@@ -51,7 +51,7 @@ public class BizSimMain{
 				agents.add(new Agent());
 			}
 			
-			Thread t = new Thread(new ProcessSimulator(agents));
+			Thread t = new Thread(new ProcessSimulator(agents, numGenerations));
 			t.start();
 		}
 	}
@@ -59,33 +59,63 @@ public class BizSimMain{
 	public class ProcessSimulator implements Runnable{
 	
 		//vars
-		ArrayList<Agent> agents;
 		Environment e;
+		List<Agent> children = new ArrayList<Agent>();
+		int generations, cur_gen;
 		
-		public ProcessSimulator(ArrayList<Agent> agents){
-			this.agents = agents;
+		public ProcessSimulator(ArrayList<Agent> agents, int generations){
+			children = agents;
 			e = new Environment();
-			e.addAgents(this.agents);
+			this.generations = generations;
+			cur_gen = 0;
 		}
 	
 		public void run(){
-		
-			//Process 100-days
-			for(int i = 0; i<100; i++){
-				e.simulateDay();
-			}
 			
-			//sort the results by money, descending
-			Collections.sort(agents);
-			Collections.reverse(agents);
-			
-			
-			for(Agent a : agents)
-				System.out.println(a.getMoney());
+			while(cur_gen < generations){
 				
-			//now we need to select agents for crossover, mutation, and elites
+				//create our list of agents
+				e.purgeAgents();
+				e.addAgents(children);
 			
-			
+				//Process 100-days
+				for(int i = 0; i<100; i++){
+					e.simulateDay();
+				}
+				
+				//sort the results by money, descending
+				Collections.sort(children);
+				Collections.reverse(children);
+				
+				if(cur_gen == generations - 1)
+					for(Agent a : children.subList(0, 21))
+						System.out.println(a.getMoney());
+				
+				//now we need to select agents for crossover, mutation, and elites
+				//for elites, keep the first one
+				Agent elite = children.get(0);
+				elite.reset();
+				
+				//for parents to keep, simply choose the top 20% (excluding the elite)
+				List<Agent> parents = children.subList(1, (int)(children.size()*.2));
+				
+				//Create an instance of the Evolution class
+				Evolution evo = new Evolution();
+				
+				//create some children, and perform mutations
+				children = evo.performCrossover(parents);
+				children = evo.performMutation(children);
+				
+				//add the elite agent into the pool
+				children.add(elite);
+				
+				//refill the agent pool with random agents
+				for(int i = 0; i < 79; ++i){
+					children.add(new Agent());
+				}
+				
+				cur_gen++;
+			}
 		}
 	}
 }

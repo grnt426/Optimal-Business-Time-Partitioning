@@ -10,6 +10,7 @@
 
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.Collections;
 
@@ -24,7 +25,7 @@ public class Evolution{
 	* father.
 	*
 	*/
-	public ArrayList<Agent> performCrossover(ArrayList<Agent> agents){
+	public List<Agent> performCrossover(List<Agent> agents){
 	
 		//vars
 		int mid = agents.size()/2, rand, gene_count;
@@ -66,7 +67,7 @@ public class Evolution{
 		return children;
 	}
 	
-	public ArrayList<Agent> performMutation(ArrayList<Agent> agents){
+	public List<Agent> performMutation(List<Agent> agents){
 		
 		//vars
 		int max_mutations = 7, rand,

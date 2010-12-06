@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class MainTester{
 
@@ -36,7 +37,7 @@ public class MainTester{
 		System.out.println("Parents:");
 		for(Agent f : first_gen)
 			System.out.println(f);
-		ArrayList<Agent> children = chamber.performCrossover(first_gen);
+		List<Agent> children = chamber.performCrossover(first_gen);
 		System.out.println("Children:");
 		for(Agent c : children)
 			System.out.println(c);

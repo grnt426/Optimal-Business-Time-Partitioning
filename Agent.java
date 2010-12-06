@@ -56,6 +56,12 @@ public class Agent implements Comparable<Agent>{
 		}
 	}
 	
+	public void reset(){
+		money = 50000;
+		currently_storing = false;
+		dumpGoods();
+	}
+	
 	public int getMoney(){
 		return money;
 	}
