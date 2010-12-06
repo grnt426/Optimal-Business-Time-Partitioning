@@ -1,3 +1,13 @@
+/**
+* File:			Environment.java
+*
+* Author:		Grant Kurtz
+*
+* Description:	Contains all information about the environment the agents will
+*				participate in.  This class is also able to simulate a business
+*				day given a list of agents.
+*/
+
 import java.util.ArrayList;
 
 public class Environment{
@@ -130,19 +140,19 @@ public class Environment{
 					
 					//sell demand's worth of Low-Quality goods
 					temp_fgs = agent.getProducedLQ();
-					temp_fgs = (temp_fgs > MAX_LQSELL ? MAX_LQSELL : temp_fgs);
+					temp_fgs = temp_fgs > MAX_LQSELL ? MAX_LQSELL : temp_fgs;
 					agent.adjustProducedLQ(-temp_fgs);
 					money = temp_fgs * LQ_SALE;
 					
 					//sell demand's worth of Medium-Quality goods
 					temp_fgs = agent.getProducedMQ();
-					temp_fgs = (temp_fgs > MAX_MQSELL ? MAX_MQSELL : temp_fgs);
+					temp_fgs = temp_fgs > MAX_MQSELL ? MAX_MQSELL : temp_fgs;
 					agent.adjustProducedMQ(-temp_fgs);
 					money += temp_fgs * MQ_SALE;
 					
 					//sell demand's worth of High-Quality goods
 					temp_fgs = agent.getProducedHQ();
-					temp_fgs = (temp_fgs > MAX_HQSELL ? MAX_HQSELL : temp_fgs);
+					temp_fgs = temp_fgs > MAX_HQSELL ? MAX_HQSELL : temp_fgs;
 					agent.adjustProducedHQ(-temp_fgs);
 					money += temp_fgs * HQ_SALE;
 					agent.adjustMoney(money);
@@ -154,19 +164,19 @@ public class Environment{
 					//stub action
 					//sell demand's worth of Low-Quality goods
 					temp_fgs = agent.getProducedLQ();
-					temp_fgs = (temp_fgs > MAX_LQSELL ? MAX_LQSELL : temp_fgs);
+					temp_fgs = temp_fgs > MAX_LQSELL ? MAX_LQSELL : temp_fgs;
 					agent.adjustProducedLQ(-temp_fgs);
 					money = temp_fgs * LQ_SALE;
 					
 					//sell demand's worth of Medium-Quality goods
 					temp_fgs = agent.getProducedMQ();
-					temp_fgs = (temp_fgs > MAX_MQSELL ? MAX_MQSELL : temp_fgs);
+					temp_fgs = temp_fgs > MAX_MQSELL ? MAX_MQSELL : temp_fgs;
 					agent.adjustProducedMQ(-temp_fgs);
 					money += temp_fgs * MQ_SALE;
 					
 					//sell demand's worth of High-Quality goods
 					temp_fgs = agent.getProducedHQ();
-					temp_fgs = (temp_fgs > MAX_HQSELL ? MAX_HQSELL : temp_fgs);
+					temp_fgs = temp_fgs > MAX_HQSELL ? MAX_HQSELL : temp_fgs;
 					agent.adjustProducedHQ(-temp_fgs);
 					money += temp_fgs * HQ_SALE;
 					agent.adjustMoney(money);

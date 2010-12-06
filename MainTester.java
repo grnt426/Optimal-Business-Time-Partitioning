@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Collections;
+
 public class MainTester{
 
 	public static void main(String[] args){
@@ -16,12 +19,30 @@ public class MainTester{
 		//adding agent
 		Environment e = new Environment();
 		e.addAgent(a);
+		e.addAgent(a);
 		
-		//Simulate a single business day for all agents
+		//Simulate a business cycle for all agents
 		for(int i = 0; i < 100;++i){
 			e.simulateDay();
 		}
 		System.out.println("Printing the current state of the Agent");
 		System.out.println(a.printState());
+		
+		//create Evolution chamber
+		Evolution chamber = new Evolution();
+		ArrayList<Agent> first_gen = new ArrayList<Agent>();
+		first_gen.add(a);
+		first_gen.add(new Agent());
+		System.out.println("Parents:");
+		for(Agent f : first_gen)
+			System.out.println(f);
+		ArrayList<Agent> children = chamber.performCrossover(first_gen);
+		System.out.println("Children:");
+		for(Agent c : children)
+			System.out.println(c);
+		System.out.println("Mutated Children:");
+		children = chamber.performMutation(children);
+		for(Agent m : children)
+			System.out.println(m);
 	}
 }

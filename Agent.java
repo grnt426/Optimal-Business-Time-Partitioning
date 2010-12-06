@@ -43,6 +43,10 @@ public class Agent implements Comparable<Agent>{
 		return chromosome;
 	}
 	
+	public void setChrome(ArrayList<Boolean> chrome){
+		chromosome = chrome;
+	}
+	
 	public void setChrome(String chrome){
 		chromosome = new ArrayList<Boolean>();
 		for(Character c : chrome.toCharArray()){

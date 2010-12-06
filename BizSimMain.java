@@ -16,18 +16,38 @@ import java.util.Collections;
 public class BizSimMain{
 
 	public static void main(String[] args){
-
-		new BizSimMain();
+		
+		//process arguments
+		if(args.length != 3){
+			System.err.println("WTF? I need the correct number of arguments");
+			System.exit(0);
+		}
+		
+		//vars
+		int numThreads = 0, numAgents = 0, numGenerations = 0;
+		
+		try{
+			numThreads = Integer.parseInt(args[0]);
+			numAgents = Integer.parseInt(args[1]);
+			numGenerations = Integer.parseInt(args[2]);
+		}
+		catch(NumberFormatException nfe){
+			System.err.println(nfe);
+			System.exit(0);
+		}
+		
+		//Initialize our Main Class's simulator
+		new BizSimMain(numThreads, numAgents, numGenerations);
 		
 	}
 	
-	public BizSimMain(){
+	public BizSimMain(int numThreads, int numAgents, int numGenerations){
 	
-		for(int k = 0; k < 1; ++k){
+		for(int k = 0; k < numThreads; ++k){
 		
 			//create some test agents
 			ArrayList<Agent> agents = new ArrayList<Agent>();
-			for(int i = 0; i < 1000; ++i){
+			for(int i = 0; i < numAgents; ++i){
 				agents.add(new Agent());
 			}
 			
