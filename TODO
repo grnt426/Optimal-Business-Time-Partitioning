@@ -1,15 +1,18 @@
 ########################
 Immediate TODO:
-				> Create Agent class
-					> Needs methods to read, manipulate, and replace
-					chromosomal sequence [DONE]
-					> toString() methods [DONE]
+				> Main Class
+					> Need to filter agents for crossover and mutation to
+						create the new generation
+					> After creation new generations, continued assesment and
+						creation of new generations must be performed
+					> Need end conditions for when the simulation should end
 				> Simulation Engine
-					> Takes a list of Agents and calculates all the agents'
-					actions one day at a time per-agent [DONE]
 					> Methods to alter Environment-Level variables
-				> Mutataion, Crossover, and creation of agents [DONE]
-				> Main class to instantiate Simulation threads [DONE]
+					> Need greater ability to alter static values/constants
+						during runtime
+				> Evolution Class
+					> Need greater ability to alter static values/constant
+						during runtime
 
 ########################
 Eventual Updates:
