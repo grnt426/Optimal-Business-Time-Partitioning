@@ -12,6 +12,7 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
+import javax.swing.*;
 
 public class BizSimMain{
 
@@ -52,6 +53,7 @@ public class BizSimMain{
 			}
 			
 			Thread t = new Thread(new ProcessSimulator(agents, numGenerations));
+			t.setPriority(9);
 			t.start();
 		}
 	}
@@ -61,17 +63,26 @@ public class BizSimMain{
 		//vars
 		Environment e;
 		List<Agent> children = new ArrayList<Agent>();
+		List<List<Agent>> history = new ArrayList<List<Agent>>();
 		int generations, cur_gen;
+		JFrame window = new JFrame();
+		Painter paint = new Painter();
 		
 		public ProcessSimulator(ArrayList<Agent> agents, int generations){
 			children = agents;
 			e = new Environment();
 			this.generations = generations;
 			cur_gen = 0;
+			window.setTitle("Average Ability of Each Generation");
+			window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			window.getContentPane().add(paint);
+			window.pack();
+			window.setVisible(true);
 		}
 	
 		public void run(){
 			
+			//run for the number of generations specified
 			while(cur_gen < generations){
 				
 				//create our list of agents
@@ -87,8 +98,14 @@ public class BizSimMain{
 				Collections.sort(children);
 				Collections.reverse(children);
 				
-				if(cur_gen == generations - 1)
-					for(Agent a : children.subList(0, 21))
+				paint.addAgents(children);
+				paint.repaint();
+				
+				history.add(children);
+				
+				//print out the last generation
+				if(cur_gen == generations)
+					for(Agent a : children.subList(0, 41))
 						System.out.println(a.getMoney());
 				
 				//now we need to select agents for crossover, mutation, and elites
@@ -97,7 +114,8 @@ public class BizSimMain{
 				elite.reset();
 				
 				//for parents to keep, simply choose the top 20% (excluding the elite)
-				List<Agent> parents = children.subList(1, (int)(children.size()*.2));
+				List<Agent> parents = children.subList(0, 
+										(int)(children.size()*.8));
 				
 				//Create an instance of the Evolution class
 				Evolution evo = new Evolution();
@@ -110,7 +128,7 @@ public class BizSimMain{
 				children.add(elite);
 				
 				//refill the agent pool with random agents
-				for(int i = 0; i < 79; ++i){
+				for(int i = 0; i < 199; ++i){
 					children.add(new Agent());
 				}
 				

@@ -70,7 +70,7 @@ public class Evolution{
 	public List<Agent> performMutation(List<Agent> agents){
 		
 		//vars
-		int max_mutations = 7, rand,
+		int max_mutations = 16, rand,
 				chrome_size = agents.get(0).getChrome().size();
 		
 		for(Agent a : agents){
