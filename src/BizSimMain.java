@@ -125,7 +125,7 @@ public class BizSimMain{
 				//add the elite agents into the pool
 				children.addAll(elites);
 
-                System.out.println(elites.get(0).getMoney());
+                System.out.println(elites.get(0) + ": " + elites.get(0).getMoney());
 
                 //reset the elites for the next generation
                 for(Agent elitea : elites)

@@ -8,7 +8,7 @@ public class Painter extends JPanel{
 	//instance vars
     List<Integer> average_history = new ArrayList<Integer>();
 	int generation_count;
-	double max_y_val = 20000.0, max_y_real = 640.0;
+	double max_y_val = 20000.0, max_y_real = 480.0;
 	
 	public void paint(Graphics g){
 
@@ -19,6 +19,21 @@ public class Painter extends JPanel{
         if(average_history.size() == 0)
             return;
 
+        //draw the income line separators
+        g.setColor(Color.gray);
+        for(int i = 4; i > 0; --i){
+            int y =  480 - (480/4*i)+10;
+            g.drawString("$"+i*max_y_val/4, 140, y);
+            g.drawLine(0, y, 1280, y);
+        }
+
+        //draw the generational count separators
+        for(int i = 1; i < 13; ++i){
+            int x = i*100;
+            g.drawString("Gen: "+(i*100), x, 480);
+            g.drawLine(x, 0, x, 480);
+        }
+
         //the color of our data point
         g.setColor(Color.green);
         int avg = 0;
@@ -26,7 +41,7 @@ public class Painter extends JPanel{
         //draw the current history of all agents
 		for(int i = 0; i < average_history.size(); ++i){
             avg = average_history.get(i);
-            g.fillOval(i, (int)((1-avg/max_y_val)*max_y_real), 4, 4);
+            g.fillOval(i, (int)((1-avg/max_y_val)*max_y_real+30), 4, 4);
         }
 
 		//just some data to print out
