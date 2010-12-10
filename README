@@ -41,6 +41,8 @@ Technical Details of Algorithm*:
 					opposite effect.
 				> LQGs differ from MQGs and HQGs in the number of RMs consumed
 				and the sale price obtained in the market.
+				> During a sale action, LQ, MQ, and HQ goods will be sold (in
+				decreasing amounts)
 				> If an agent fails to store UGs by the end of the day then all
 				UGs are lost during the next day.
 
