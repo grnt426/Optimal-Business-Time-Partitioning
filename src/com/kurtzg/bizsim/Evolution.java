@@ -1,5 +1,5 @@
-/**
-* File:			Evolution.java
+package com.kurtzg.bizsim; /**
+* File:			com.kurtzg.bizsim.Evolution.java
 *
 * Author:		Grant Kurtz
 *
@@ -12,7 +12,6 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Collections;
 
 public class Evolution{
 

@@ -1,5 +1,5 @@
-/**
-* File: 		Agent.java
+package com.kurtzg.bizsim; /**
+* File: 		com.kurtzg.bizsim.Agent.java
 *
 * Author: 		Grant Kurtz
 *

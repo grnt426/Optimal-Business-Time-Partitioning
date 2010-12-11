@@ -1,5 +1,5 @@
-/**
-* File:			Environment.java
+package com.kurtzg.bizsim; /**
+* File:			com.kurtzg.bizsim.Environment.java
 *
 * Author:		Grant Kurtz
 *

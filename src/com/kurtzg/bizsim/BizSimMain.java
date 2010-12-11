@@ -1,5 +1,5 @@
-/**
-* File:			BizSimMain.java
+package com.kurtzg.bizsim; /**
+* File:			com.kurtzg.bizsim.BizSimMain.java
 *
 * Author:		Grant Kurtz
 *
@@ -63,7 +63,7 @@ public class BizSimMain{
 		//vars
 		Environment e;
 		List<Agent> children = new ArrayList<Agent>();
-		//List<List<Agent>> history = new ArrayList<List<Agent>>();
+		//List<List<com.kurtzg.bizsim.Agent>> history = new ArrayList<List<com.kurtzg.bizsim.Agent>>();
 		int generations, cur_gen, total_agents;
 		JFrame window = new JFrame();
 		Painter paint = new Painter();
