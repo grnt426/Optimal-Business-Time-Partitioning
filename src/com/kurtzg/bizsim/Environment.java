@@ -14,11 +14,11 @@ import java.util.List;
 public class Environment{
 
 	//instance variables
-	int RM_COST, LQ_RATE, MQ_RATE, HQ_RATE, LQ_SALE, MQ_SALE, HQ_SALE,
+	private int RM_COST, LQ_RATE, MQ_RATE, HQ_RATE, LQ_SALE, MQ_SALE, HQ_SALE,
 				MAX_RMS_PER_AC, MAX_LQ_PER_AC, MAX_MQ_PER_AC, MAX_HQ_PER_AC,
                 MAX_LQSELL, MAX_MQSELL, MAX_HQSELL;
-	int ACTIONS_TOTAL, current_day;
-	ArrayList<Agent> agents;
+	private int ACTIONS_TOTAL, current_day;
+	private ArrayList<Agent> agents;
 	
 	/*
 	* Initializes with hard-coded defaults
@@ -201,7 +201,7 @@ public class Environment{
 
             //compute the agent's current progress
             agent.tabulateIncomeHistory();
-            if(agent.getIncomeRatio() < 1.1 && current_day < 15){
+            if(agent.getIncomeRatio() < 1.2 && current_day < 15){
                 agent.markAgentIneffective();
                 continue;
             }

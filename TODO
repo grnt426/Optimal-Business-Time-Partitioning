@@ -1,11 +1,5 @@
 ########################
 Immediate TODO:
-				> Main Class
-					> Need to filter agents for crossover and mutation to
-						create the new generation
-					> After creation new generations, continued assesment and
-						creation of new generations must be performed
-					> Need end conditions for when the simulation should end
 				> Simulation Engine
 					> Methods to alter Environment-Level variables
 					> Need greater ability to alter static values/constants

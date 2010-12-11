@@ -9,12 +9,16 @@ package com.kurtzg.bizsim; /**
 *
 */
 
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
 import javax.swing.*;
 
-public class BizSimMain{
+public class BizSimMain implements ActionListener{
 
 	public static void main(String[] args){
 		
@@ -43,50 +47,106 @@ public class BizSimMain{
 	}
 	
 	public BizSimMain(int numThreads, int numAgents, int numGenerations){
-	
-		for(int k = 0; k < numThreads; ++k){
+
+        JFrame control_window = new JFrame();
+        control_window.setTitle("Control Suite");
+        control_window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        control_window.setSize(new Dimension(640, 480));
+        control_window.setAlwaysOnTop(true);
+        control_window.setLayout(new BorderLayout());
+        
+        //create a list to hold all the spawned threads for access later
+        List<Thread> species = new ArrayList<Thread>(); 
+
+        JPanel species_control = new JPanel();
+        JLabel species_list_l = new JLabel("Species Running");
+        DefaultListModel species_list = new DefaultListModel();
+
+        //create our Environment
+        Environment e = new Environment();
+
+		for(int kittehsex = 0; kittehsex < numThreads; ++kittehsex){
 		
 			//create some test agents
 			ArrayList<Agent> agents = new ArrayList<Agent>();
 			for(int i = 0; i < numAgents; ++i){
 				agents.add(new Agent());
 			}
-			
-			Thread t = new Thread(new ProcessSimulator(agents, numGenerations));
+
+            //create our new thread and pass in some control variables
+			Thread t = new Thread(new ProcessSimulator(agents, numGenerations, kittehsex, e));
+            species.add(t);
+
+            //update our current species list
+            species_list.addElement("Species #"+kittehsex);
+
+            //set the thread to a high priority, and then start it
 			t.setPriority(9);
 			t.start();
 		}
+
+        JList species_select_list = new JList(species_list);
+        species_select_list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+        species_select_list.setLayoutOrientation(JList.VERTICAL);
+        species_select_list.setVisibleRowCount(3);
+
+        //create a button to control the running state of all threads
+        JButton start_stop = new JButton("Start/Stop");
+        start_stop.addActionListener(this);
+        control_window.add(start_stop, BorderLayout.SOUTH);
+
+        //add our components to the window
+        species_control.add(species_list_l);
+        species_control.add(species_select_list);
+        control_window.add(species_control, BorderLayout.WEST);
+        control_window.setVisible(true);
 	}
-	
-	public class ProcessSimulator implements Runnable{
+
+    public void actionPerformed(ActionEvent e) {
+
+        //if(e.get)
+
+    }
+
+    public class ProcessSimulator implements Runnable{
 	
 		//vars
-		Environment e;
-		List<Agent> children = new ArrayList<Agent>();
+		private Environment e;
+		private List<Agent> children = new ArrayList<Agent>();
 		//List<List<com.kurtzg.bizsim.Agent>> history = new ArrayList<List<com.kurtzg.bizsim.Agent>>();
-		int generations, cur_gen, total_agents;
-		JFrame window = new JFrame();
-		Painter paint = new Painter();
-		Evolution evo = new Evolution();
+		private int generations, cur_gen, total_agents, id;
+		private JFrame window = new JFrame();
+		private Painter paint = new Painter();
+		private Evolution evo = new Evolution();
+        private boolean running;
 		
-		public ProcessSimulator(ArrayList<Agent> agents, int generations){
+		public ProcessSimulator(ArrayList<Agent> agents, int generations, int id, Environment e){
+            this.e = e;
+            this.id = id;
 			children = agents;
             total_agents = agents.size();
-			e = new Environment();
 			this.generations = generations;
 			cur_gen = 0;
-			window.setTitle("Average Ability of Each Generation");
+			window.setTitle("Average Performance of Each Generation #" + id);
 			window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			window.getContentPane().add(paint);
 			window.pack();
 			window.setVisible(true);
-
+            running = true;
 		}
 	
+        public int getID(){
+            return id;
+        }
+
+        public void toggleRunning(){
+            running = !running;
+        }
+
 		public void run(){
 			
 			//run for the number of generations specified
-			while(cur_gen < generations){
+			while(cur_gen < generations && running){
 				
 				//create our list of agents
 				e.purgeAgents();
@@ -129,7 +189,7 @@ public class BizSimMain{
 
                 //reset the elites for the next generation
                 for(Agent elitea : elites)
-                        elitea.reset();
+                    elitea.reset();
 				
 				//refill the agent pool with random agents
 				while(children.size() < total_agents){
