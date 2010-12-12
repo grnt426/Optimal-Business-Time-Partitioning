@@ -20,6 +20,10 @@ import javax.swing.*;
 
 public class BizSimMain implements ActionListener{
 
+    //global instance variables
+    JButton start_stop = new JButton("Start/Stop");
+    List<ProcessSimulator> species = new ArrayList<ProcessSimulator>();
+
 	public static void main(String[] args){
 		
 		//process arguments
@@ -54,9 +58,6 @@ public class BizSimMain implements ActionListener{
         control_window.setSize(new Dimension(640, 480));
         control_window.setAlwaysOnTop(true);
         control_window.setLayout(new BorderLayout());
-        
-        //create a list to hold all the spawned threads for access later
-        List<Thread> species = new ArrayList<Thread>(); 
 
         JPanel species_control = new JPanel();
         JLabel species_list_l = new JLabel("Species Running");
@@ -65,6 +66,7 @@ public class BizSimMain implements ActionListener{
         //create our Environment
         Environment e = new Environment();
 
+        //create all our threads
 		for(int kittehsex = 0; kittehsex < numThreads; ++kittehsex){
 		
 			//create some test agents
@@ -74,8 +76,9 @@ public class BizSimMain implements ActionListener{
 			}
 
             //create our new thread and pass in some control variables
-			Thread t = new Thread(new ProcessSimulator(agents, numGenerations, kittehsex, e));
-            species.add(t);
+            ProcessSimulator ps = new ProcessSimulator(agents, numGenerations, kittehsex, e);
+			Thread t = new Thread(ps);
+            species.add(ps);
 
             //update our current species list
             species_list.addElement("Species #"+kittehsex);
@@ -91,7 +94,6 @@ public class BizSimMain implements ActionListener{
         species_select_list.setVisibleRowCount(3);
 
         //create a button to control the running state of all threads
-        JButton start_stop = new JButton("Start/Stop");
         start_stop.addActionListener(this);
         control_window.add(start_stop, BorderLayout.SOUTH);
 
@@ -104,8 +106,15 @@ public class BizSimMain implements ActionListener{
 
     public void actionPerformed(ActionEvent e) {
 
-        //if(e.get)
+        if(e.getSource() == start_stop){
 
+            //tell all threads to continue/resume operation
+            for(ProcessSimulator ps : species)
+                if(ps.toggleRunning())
+                    synchronized (ps){
+                        ps.notify();
+                    }
+        }
     }
 
     public class ProcessSimulator implements Runnable{
@@ -139,65 +148,83 @@ public class BizSimMain implements ActionListener{
             return id;
         }
 
-        public void toggleRunning(){
+        public boolean toggleRunning(){
             running = !running;
+            return running;
+        }
+
+        public void replaceEnvironment(Environment e){
+            this.e = e;
         }
 
 		public void run(){
-			
-			//run for the number of generations specified
-			while(cur_gen < generations && running){
-				
-				//create our list of agents
-				e.purgeAgents();
-				e.addAgents(children);
-			
-				//Process 100-days
-				for(int i = 0; i<100; i++){
-					e.simulateDay();
-				}
-				
-				//sort the results by money, descending
-				Collections.sort(children);
-				Collections.reverse(children);
-				
-				paint.addAgents(children);
-				
-				//history.add(children);
-				
-				//print out the last generation
-				if(cur_gen == generations)
-					for(Agent a : children.subList(0, 41))
-						System.out.println(a.getMoney());
-				
-				//now we need to select agents for crossover, mutation, and elites
-				//for elites, keep the first 5%
-				List<Agent> elites = children.subList(0, (int)(children.size()*.05));
-				
-				//for parents to keep, simply choose the top 80% (including the elites)
-				List<Agent> parents = children.subList(0, 
-										(int)(children.size()*.8));
-				
-				//create some children, and perform mutations
-				children = evo.performCrossover(parents);
-				children = evo.performMutation(children);
-				
-				//add the elite agents into the pool
-				children.addAll(elites);
 
-                System.out.println(elites.get(0) + ": " + elites.get(0).getMoney());
+            while(true){
+                if(!running){
+                    synchronized (this){
+                        try{
+                            wait();
+                        }
+                        catch(InterruptedException ie){
 
-                //reset the elites for the next generation
-                for(Agent elitea : elites)
-                    elitea.reset();
-				
-				//refill the agent pool with random agents
-				while(children.size() < total_agents){
-					children.add(new Agent());
-				}
-				
-				cur_gen++;
-			}
+                        }
+                    }
+                }
+
+                //run for the number of generations specified
+                while(cur_gen < generations && running){
+
+                    //create our list of agents
+                    e.purgeAgents();
+                    e.addAgents(children);
+
+                    //Process 100-days
+                    for(int i = 0; i<100; i++){
+                        e.simulateDay();
+                    }
+
+                    //sort the results by money, descending
+                    Collections.sort(children);
+                    Collections.reverse(children);
+
+                    paint.addAgents(children);
+
+                    //history.add(children);
+
+                    //print out the last generation
+                    if(cur_gen == generations)
+                        for(Agent a : children.subList(0, 41))
+                            System.out.println(a.getMoney());
+
+                    //now we need to select agents for crossover, mutation, and elites
+                    //for elites, keep the first 5%
+                    List<Agent> elites = children.subList(0, (int)(children.size()*.05));
+
+                    //for parents to keep, simply choose the top 80% (including the elites)
+                    List<Agent> parents = children.subList(0,
+                                            (int)(children.size()*.8));
+
+                    //create some children, and perform mutations
+                    children = evo.performCrossover(parents);
+                    children = evo.performMutation(children);
+
+                    //add the elite agents into the pool
+                    children.addAll(elites);
+
+                    System.out.println(elites.get(0) + ": " + elites.get(0).getMoney());
+
+                    //reset the elites for the next generation
+                    for(Agent elitea : elites)
+                        elitea.reset();
+
+                    //refill the agent pool with random agents
+                    while(children.size() < total_agents){
+                        children.add(new Agent());
+                    }
+
+                    cur_gen++;
+                }
+            }
 		}
 	}
 }
