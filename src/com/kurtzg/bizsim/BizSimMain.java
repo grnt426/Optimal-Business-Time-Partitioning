@@ -22,6 +22,7 @@ public class BizSimMain implements ActionListener{
 
     //global instance variables
     JButton start_stop = new JButton("Start/Stop");
+    JButton reset = new JButton("Restart");
     List<ProcessSimulator> species = new ArrayList<ProcessSimulator>();
 
 	public static void main(String[] args){
@@ -93,14 +94,21 @@ public class BizSimMain implements ActionListener{
         species_select_list.setLayoutOrientation(JList.VERTICAL);
         species_select_list.setVisibleRowCount(3);
 
-        //create a button to control the running state of all threads
+        //start listening to all buttons
         start_stop.addActionListener(this);
-        control_window.add(start_stop, BorderLayout.SOUTH);
+        reset.addActionListener(this);
+
+        //create a panel for all our flow control buttons
+        JPanel control_flow_buttons = new JPanel();
+        control_flow_buttons.setLayout(new GridLayout(1, 6));
+        control_flow_buttons.add(start_stop);
+        control_flow_buttons.add(reset);
 
         //add our components to the window
         species_control.add(species_list_l);
         species_control.add(species_select_list);
         control_window.add(species_control, BorderLayout.WEST);
+        control_window.add(control_flow_buttons, BorderLayout.SOUTH);
         control_window.setVisible(true);
 	}
 
@@ -114,6 +122,16 @@ public class BizSimMain implements ActionListener{
                     synchronized (ps){
                         ps.notify();
                     }
+        }
+        else if(e.getSource() == reset){
+            for(ProcessSimulator ps : species){
+                if(!ps.isRunning()){
+                    ps.reset();
+                    synchronized (ps){
+                        ps.notify();
+                    }
+                }
+            }
         }
     }
 
@@ -143,6 +161,15 @@ public class BizSimMain implements ActionListener{
 			window.setVisible(true);
             running = true;
 		}
+
+        public void reset(){
+            e.purgeAgents();
+            paint.clearHistory();
+            children.clear();
+            fillWithAgents();
+            cur_gen = 0;
+            running = true;
+        }
 	
         public int getID(){
             return id;
@@ -153,8 +180,18 @@ public class BizSimMain implements ActionListener{
             return running;
         }
 
+        public boolean isRunning(){
+            return running;
+        }
+
         public void replaceEnvironment(Environment e){
             this.e = e;
+        }
+
+        public void fillWithAgents(){
+            while(children.size() < total_agents){
+				children.add(new Agent());
+			}
         }
 
 		public void run(){
@@ -217,13 +254,11 @@ public class BizSimMain implements ActionListener{
                     for(Agent elitea : elites)
                         elitea.reset();
 
-                    //refill the agent pool with random agents
-                    while(children.size() < total_agents){
-                        children.add(new Agent());
-                    }
+                    fillWithAgents();
 
                     cur_gen++;
                 }
+                running = false;
             }
 		}
 	}

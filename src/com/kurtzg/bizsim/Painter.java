@@ -67,6 +67,15 @@ public class Painter extends JPanel{
         //finally, perform a repaint
         repaint();
 	}
+
+    public void clearHistory(){
+        average_history.clear();
+        generation_count = 0;
+    }
+
+    public void saveHistory(){
+
+    }
 	
 	public Dimension getPreferredSize(){
 		return new Dimension(1281, 481);
