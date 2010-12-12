@@ -23,6 +23,14 @@ public class BizSimMain implements ActionListener{
     //global instance variables
     JButton start_stop = new JButton("Start/Stop");
     JButton reset = new JButton("Restart");
+    JButton reconfigure = new JButton("Reconfigure");
+    JTextField low_rate = new JTextField();
+    JTextField med_rate = new JTextField();
+    JTextField high_rate = new JTextField();
+    JTextField low_sale = new JTextField();
+    JTextField med_sale = new JTextField();
+    JTextField high_sale = new JTextField();
+    JLabel error_label = new JLabel();
     List<ProcessSimulator> species = new ArrayList<ProcessSimulator>();
 
 	public static void main(String[] args){
@@ -97,18 +105,59 @@ public class BizSimMain implements ActionListener{
         //start listening to all buttons
         start_stop.addActionListener(this);
         reset.addActionListener(this);
+        reconfigure.addActionListener(this);
+
+        //add mnemonics to some buttons
+        start_stop.setMnemonic('s');
+        reset.setMnemonic('r');
+        reconfigure.setMnemonic('e');
+
+        //create a panel for all our environment variables
+        JPanel environment_controls = new JPanel();
+        environment_controls.setLayout(new GridLayout(3, 4));
+        environment_controls.add(new JLabel("High Rate:"));
+        environment_controls.add(high_rate);
+        environment_controls.add(new JLabel("High Sale:"));
+        environment_controls.add(high_sale);
+        environment_controls.add(new JLabel("Medium Rate:"));
+        environment_controls.add(med_rate);
+        environment_controls.add(new JLabel("Medium Sale:"));
+        environment_controls.add(med_sale);
+        environment_controls.add(new JLabel("Low Rate:"));
+        environment_controls.add(low_rate);
+        environment_controls.add(new JLabel("Low Sale:"));
+        environment_controls.add(low_sale);
+
+        //set the size of the button to just 3 characters
+        high_rate.setColumns(3);
+        high_sale.setColumns(3);
+        med_rate.setColumns(3);
+        med_sale.setColumns(3);
+        low_rate.setColumns(3);
+        low_sale.setColumns(3);
+
+        //set the current value of our fields to the current environment value
+        high_rate.setText(e.getHQRate() + "");
+        high_sale.setText(e.getHQSale() + "");
+        med_rate.setText(e.getMQRate() + "");
+        med_sale.setText(e.getMQSale() + "");
+        low_rate.setText(e.getLQRate() + "");
+        low_sale.setText(e.getLQSale() + "");
 
         //create a panel for all our flow control buttons
         JPanel control_flow_buttons = new JPanel();
         control_flow_buttons.setLayout(new GridLayout(1, 6));
         control_flow_buttons.add(start_stop);
         control_flow_buttons.add(reset);
+        control_flow_buttons.add(reconfigure);
 
         //add our components to the window
         species_control.add(species_list_l);
         species_control.add(species_select_list);
         control_window.add(species_control, BorderLayout.WEST);
+        control_window.add(environment_controls);
         control_window.add(control_flow_buttons, BorderLayout.SOUTH);
+        control_window.setLocation(620, 0);
         control_window.setVisible(true);
 	}
 
@@ -131,6 +180,24 @@ public class BizSimMain implements ActionListener{
                         ps.notify();
                     }
                 }
+            }
+        }
+        else if(e.getSource() == reconfigure){
+
+            //create a new environment with the new parameters
+            Environment environment = new Environment();
+
+            //override existing values
+            environment.setHQSale(Integer.parseInt(high_sale.getText()));
+            environment.setHQRate(Integer.parseInt(high_rate.getText()));
+            environment.setMQRate(Integer.parseInt(med_rate.getText()));
+            environment.setMQSale(Integer.parseInt(med_sale.getText()));
+            environment.setLQRate(Integer.parseInt(low_rate.getText()));
+            environment.setLQSale(Integer.parseInt(low_sale.getText()));
+
+            for(ProcessSimulator ps : species){
+                if(!ps.isRunning())
+                    ps.replaceEnvironment(environment);
             }
         }
     }

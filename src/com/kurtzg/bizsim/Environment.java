@@ -61,6 +61,58 @@ public class Environment{
 	public void purgeAgents(){
 		agents.clear();
 	}
+
+    /*
+    * Look out below, giant list of get/set variables!
+    *
+     */
+    public void setHQRate(int rate){
+        this.HQ_RATE = rate;
+    }
+
+    public void setMQRate(int rate){
+        this.MQ_RATE = rate;
+    }
+
+    public void setLQRate(int rate){
+        this.LQ_RATE = rate;
+    }
+
+    public void setHQSale(int rate){
+        this.HQ_SALE = rate;
+    }
+
+    public void setMQSale(int rate){
+        this.MQ_SALE = rate;
+    }
+
+    public void setLQSale(int rate){
+        this.LQ_SALE = rate;
+    }
+
+    public int getHQRate(){
+        return HQ_RATE;
+    }
+
+    public int getHQSale(){
+        return HQ_SALE;
+    }
+
+    public int getMQRate(){
+        return MQ_RATE;
+    }
+
+    public int getMQSale(){
+        return MQ_SALE;
+    }
+
+    public int getLQSale(){
+        return LQ_SALE;
+    }
+
+    public int getLQRate(){
+        return LQ_RATE;
+    }
 	
 	/*
 	* Processes a single business day for all agents, grabbing each agent's

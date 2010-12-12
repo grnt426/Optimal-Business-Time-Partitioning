@@ -30,7 +30,7 @@ public class Painter extends JPanel{
         }
 
         //draw the generational count separators
-        for(int i = 1; i < 13; ++i){
+        for(int i = 1; i < 6; ++i){
             int x = i*100;
             g.drawString("Gen: "+(i*100), x, 480);
             g.drawLine(x, 0, x, 480);
@@ -78,6 +78,6 @@ public class Painter extends JPanel{
     }
 	
 	public Dimension getPreferredSize(){
-		return new Dimension(1281, 481);
+		return new Dimension(601, 481);
 	}
 }
