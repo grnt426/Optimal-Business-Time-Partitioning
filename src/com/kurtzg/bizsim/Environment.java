@@ -18,6 +18,7 @@ public class Environment{
 				MAX_RMS_PER_AC, MAX_LQ_PER_AC, MAX_MQ_PER_AC, MAX_HQ_PER_AC,
                 MAX_LQSELL, MAX_MQSELL, MAX_HQSELL;
 	private int ACTIONS_TOTAL, current_day;
+    private double income_ratio_threshold;
 	private ArrayList<Agent> agents;
 	
 	/*
@@ -42,6 +43,7 @@ public class Environment{
 		MAX_MQSELL = 1300;
 		MAX_HQSELL = 900;
 		current_day = 0;
+        income_ratio_threshold = 1.1;
 	}
 
 	/*
@@ -112,6 +114,14 @@ public class Environment{
 
     public int getLQRate(){
         return LQ_RATE;
+    }
+
+    public void setIncomeRatioThreshold(double threshold){
+        this.income_ratio_threshold = threshold;
+    }
+
+    public double getIncomeRatioThreshold(){
+        return income_ratio_threshold;
     }
 	
 	/*
@@ -253,7 +263,7 @@ public class Environment{
 
             //compute the agent's current progress
             agent.tabulateIncomeHistory();
-            if(agent.getIncomeRatio() < 1.2 && current_day < 15){
+            if(agent.getIncomeRatio() < income_ratio_threshold && current_day < 15){
                 agent.markAgentIneffective();
                 continue;
             }
