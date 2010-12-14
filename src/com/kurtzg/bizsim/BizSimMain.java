@@ -12,6 +12,8 @@ package com.kurtzg.bizsim;
 
 
 // imports
+import sun.misc.JavaLangAccess;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,10 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
 import javax.swing.*;
+import javax.xml.bind.Marshaller;
 
 public class BizSimMain implements ActionListener{
 
     // global instance variables
+    //global GUI controls
     JButton start_stop = new JButton("Start/Stop");
     JButton reset = new JButton("Restart");
     JButton reconfigure = new JButton("Reconfigure");
@@ -38,8 +42,13 @@ public class BizSimMain implements ActionListener{
     JTextField elite_percent = new JTextField();
     JTextField parent_percent = new JTextField();
     JTextField agent_performance = new JTextField();
+    JTextField cur_elite_total = new JTextField("0");
+    JTextArea cur_elite_genome = new JTextArea(15, 4);
     JLabel error_label = new JLabel();
+
+    //global general purpose variables
     List<ProcessSimulator> species = new ArrayList<ProcessSimulator>();
+    Agent current_elite;
 
 	public static void main(String[] args){
 		
@@ -74,7 +83,7 @@ public class BizSimMain implements ActionListener{
         JFrame control_window = new JFrame();
         control_window.setTitle("Control Suite");
         control_window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        control_window.setSize(new Dimension(640, 480));
+        control_window.setSize(new Dimension(800, 480));
         control_window.setAlwaysOnTop(true);
         control_window.setLayout(new BorderLayout());
 
@@ -95,7 +104,8 @@ public class BizSimMain implements ActionListener{
 			}
 
             // create our new thread and pass in some control variables
-            ProcessSimulator ps = new ProcessSimulator(agents, numGenerations, kittehsex, e);
+            ProcessSimulator ps = new ProcessSimulator(agents, numGenerations,
+                    kittehsex, e, this);
 			Thread t = new Thread(ps);
             species.add(ps);
 
@@ -109,7 +119,8 @@ public class BizSimMain implements ActionListener{
 
         // create a selectable list of all the different species we have
         JList species_select_list = new JList(species_list);
-        species_select_list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+        species_select_list.setSelectionMode(
+                ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         species_select_list.setLayoutOrientation(JList.VERTICAL);
         species_select_list.setVisibleRowCount(3);
 
@@ -125,7 +136,8 @@ public class BizSimMain implements ActionListener{
 
         // create a panel for all our environment variables
         JPanel environment_controls = new JPanel();
-        environment_controls.setBorder(BorderFactory.createTitledBorder("Modify Finished Good Values"));
+        environment_controls.setBorder(BorderFactory.createTitledBorder(
+                "Modify Finished Good Values"));
         environment_controls.setLayout(new GridLayout(3, 4));
         environment_controls.add(new JLabel("High Rate:"));
         environment_controls.add(high_rate);
@@ -142,7 +154,8 @@ public class BizSimMain implements ActionListener{
 
         // create a panel for all our simulation variables
         JPanel simulation_controls = new JPanel();
-        simulation_controls.setBorder(BorderFactory.createTitledBorder("Modify Simulation Controls"));
+        simulation_controls.setBorder(BorderFactory.createTitledBorder(
+                "Modify Simulation Controls"));
         simulation_controls.setLayout(new GridLayout(6, 2));
         simulation_controls.add(new JLabel("Agent Count:"));
         simulation_controls.add(agent_count);
@@ -155,12 +168,31 @@ public class BizSimMain implements ActionListener{
         simulation_controls.add(new JLabel("Agent Performance"));
         simulation_controls.add(agent_performance);
 
-        // this panel encompasses the different panels for altering the state
-        // of the simulation
+        // create a panel for displaying information about the current elite
+        // agent
+        JPanel elite_panel = new JPanel();
+        elite_panel.setBorder(BorderFactory.createTitledBorder(
+                "Current Elite Agent Performance"
+        ));
+        elite_panel.setLayout(new GridLayout(2, 2));
+        elite_panel.add(new JLabel("Total: "));
+        elite_panel.add(cur_elite_total);
+        elite_panel.add(new JLabel("Genome: "));
+        JScrollPane genome_scroll = new JScrollPane(cur_elite_genome);
+        elite_panel.add(genome_scroll);
+
+        // this panel encompasses the different panels for altering and showing
+        // the current state of the simulation
         JPanel field_controls = new JPanel();
         field_controls.setLayout(new GridLayout(2, 2));
         field_controls.add(environment_controls);
         field_controls.add(simulation_controls);
+        field_controls.add(elite_panel);
+
+        //set some attributes on misc. GUI stuff
+        cur_elite_genome.setWrapStyleWord(true);
+        cur_elite_genome.setEditable(false);
+        cur_elite_genome.setLineWrap(true);
 
         // set the size of the button to just 3 characters
         high_rate.setColumns(3);
@@ -205,7 +237,12 @@ public class BizSimMain implements ActionListener{
 
     public void actionPerformed(ActionEvent e) {
 
-        if(e.getSource() == start_stop){
+        Object src = e.getSource();
+        String msg = e.getActionCommand();
+
+
+
+        if(src == start_stop){
 
             // tell all threads to continue/resume operation
             for(ProcessSimulator ps : species)
@@ -214,7 +251,7 @@ public class BizSimMain implements ActionListener{
                         ps.notify();
                     }
         }
-        else if(e.getSource() == reset){
+        else if(src == reset){
             for(ProcessSimulator ps : species){
                 if(!ps.isRunning()){
                     ps.reset();
@@ -224,7 +261,7 @@ public class BizSimMain implements ActionListener{
                 }
             }
         }
-        else if(e.getSource() == reconfigure){
+        else if(src == reconfigure){
 
             //create a new environment with the new parameters
             Environment environment = new Environment();
@@ -236,7 +273,9 @@ public class BizSimMain implements ActionListener{
             environment.setMQSale(Integer.parseInt(med_sale.getText()));
             environment.setLQRate(Integer.parseInt(low_rate.getText()));
             environment.setLQSale(Integer.parseInt(low_sale.getText()));
-            environment.setIncomeRatioThreshold(Double.parseDouble(agent_performance.getText()));
+            environment.setIncomeRatioThreshold(Double.parseDouble(
+                    agent_performance.getText())
+            );
 
             for(ProcessSimulator ps : species){
                 if(!ps.isRunning()){
@@ -245,11 +284,28 @@ public class BizSimMain implements ActionListener{
                     //replace simulation values
                     ps.setAgentCount(Integer.parseInt(agent_count.getText()));
                     ps.setDayCount(Integer.parseInt(day_count.getText()));
-                    ps.setElitePercent(Double.parseDouble(elite_percent.getText()));
-                    ps.setGenerationCount(Integer.parseInt(generation_count.getText()));
-                    ps.setParentPercent(Double.parseDouble(parent_percent.getText()));
+                    ps.setElitePercent(Double.parseDouble(
+                            elite_percent.getText())
+                    );
+                    ps.setGenerationCount(Integer.parseInt(
+                            generation_count.getText())
+                    );
+                    ps.setParentPercent(Double.parseDouble(
+                            parent_percent.getText())
+                    );
                 }
             }
+        }
+        else if(msg == "elite_total"){
+
+            // one of the threads has a new elite
+            // TODO: Later, we are going to want to differentiate between the
+            // TODO: different threads
+            current_elite = ((ProcessSimulator) src).getCurrentElite();
+
+            //update our GUI
+            cur_elite_total.setText("$" + current_elite.getMoney());
+            cur_elite_genome.setText(current_elite.toString());
         }
     }
 
@@ -257,25 +313,40 @@ public class BizSimMain implements ActionListener{
 	
 		//vars
 		private Environment e;
+        private ActionListener listener;
 		private List<Agent> children = new ArrayList<Agent>();
 		//List<List<com.kurtzg.bizsim.Agent>> history = new ArrayList<List<com.kurtzg.bizsim.Agent>>();
-		private int generations, cur_gen, total_agents, id, day_count;
+		private int generations, cur_gen, total_agents, id, day_count,
+                    prev_elite_total;
         private double elite_percent, parent_percent;
 		private JFrame window = new JFrame();
 		private Painter paint = new Painter();
 		private Evolution evo = new Evolution();
         private boolean running;
+        private Agent current_elite;
 		
-		public ProcessSimulator(ArrayList<Agent> agents, int generations, int id, Environment e){
+		public ProcessSimulator(ArrayList<Agent> agents, int generations,
+                                int id, Environment e, ActionListener l){
+
+            //store parameters as instance variables
             this.e = e;
             this.id = id;
+            this.listener = l;
+            this.generations = generations;
 			children = agents;
+
+            //setup all other data
             total_agents = agents.size();
-			this.generations = generations;
 			cur_gen = 0;
             day_count = 100;
             elite_percent = .05;
             parent_percent = .8;
+            current_elite = null;
+            prev_elite_total = 0;
+
+            // construct our window
+            // TODO: consolidate each thread's results into a single window for
+            // TODO: ease of comparison
 			window.setTitle("Average Performance of Each Generation #" + id);
 			window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			window.getContentPane().add(paint);
@@ -284,12 +355,17 @@ public class BizSimMain implements ActionListener{
             running = true;
 		}
 
+        /*
+        * Completely erases the current state of the Simulation
+         */
         public void reset(){
             e.purgeAgents();
             paint.clearHistory();
             children.clear();
             fillWithAgents();
             cur_gen = 0;
+            current_elite = null;
+            prev_elite_total = 0;
             running = true;
         }
 	
@@ -356,16 +432,25 @@ public class BizSimMain implements ActionListener{
             return parent_percent;
         }
 
+        public Agent getCurrentElite(){
+            return current_elite;
+        }
+
 		public void run(){
 
+            //keep the thread alive
             while(true){
+
+                //wait for a signal to re-continue processing agents
                 if(!running){
                     synchronized (this){
                         try{
                             wait();
                         }
                         catch(InterruptedException ie){
-
+                            System.err.println("ERROR: wait() call failed"
+                                    + ie
+                            );
                         }
                     }
                 }
@@ -386,22 +471,34 @@ public class BizSimMain implements ActionListener{
                     Collections.sort(children);
                     Collections.reverse(children);
 
+                    //if the elite total changed, alert the main class
+                    int elite_most_money = children.get(0).getMoney();
+                    if(elite_most_money > prev_elite_total){
+
+                        //cache the new elite total
+                        prev_elite_total = elite_most_money;
+                        current_elite = children.get(0);
+
+                        //fire an event to the main class
+                        listener.actionPerformed(new ActionEvent(this,
+                                ActionEvent.ACTION_PERFORMED, "elite_total"));
+                    }
+
                     paint.addAgents(children);
 
                     //history.add(children);
 
-                    //print out the last generation
-                    if(cur_gen == generations)
-                        for(Agent a : children.subList(0, 41))
-                            System.out.println(a.getMoney());
+                    //now we need to select agents for crossover, mutation,
+                    // and elites for elites, keep the first x%
+                    List<Agent> elites = children.subList(
+                            0, (int)(children.size()*elite_percent)
+                    );
 
-                    //now we need to select agents for crossover, mutation, and elites
-                    //for elites, keep the first 5%
-                    List<Agent> elites = children.subList(0, (int)(children.size()*elite_percent));
-
-                    //for parents to keep, simply choose the top 80% (including the elites)
+                    //for parents to keep, simply choose the top y%
+                    // (including the elites)
                     List<Agent> parents = children.subList(0,
-                                            (int)(children.size()*parent_percent));
+                                            (int)(children.size()
+                                                    *parent_percent));
 
                     //create some children, and perform mutations
                     children = evo.performCrossover(parents);

@@ -12,5 +12,6 @@ Immediate TODO:
 Eventual Updates:
 				> GUI to display End-Game results, and control flow of
 				simulation
-					> Control to alter the state of the Environement
+				    > Display Results of top agent, interpret elite, etc
+				    > Display aggregate results of whole species, generation
 					> Ability to save/load agent, environment, simulation data
