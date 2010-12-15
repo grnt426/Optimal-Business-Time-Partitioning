@@ -32,7 +32,7 @@ public class Painter extends JPanel{
         //draw the generational count separators
         for(int i = 1; i < 6; ++i){
             int x = i*100;
-            g.drawString("Gen: "+(i*100), x, 480);
+            g.drawString("Gen: "+(i*100), x+1, 478);
             g.drawLine(x, 0, x, 480);
         }
 
@@ -47,7 +47,7 @@ public class Painter extends JPanel{
         }
 
 		//just some data to print out
-		System.out.println("Average Gen #"+generation_count+" $"+avg+" VALUE:"+(1-avg/max_y_val)*max_y_real);
+		//System.out.println("Average Gen #"+generation_count+" $"+avg+" VALUE:"+(1-avg/max_y_val)*max_y_real);
 
 		generation_count++;
 	}
@@ -74,6 +74,10 @@ public class Painter extends JPanel{
     }
 
     public void saveHistory(){
+
+    }
+
+    public void setEliteAgentData(){
 
     }
 	

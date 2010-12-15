@@ -23,6 +23,7 @@ public class Agent implements Comparable<Agent>{
     private List<Integer> income_history = new ArrayList<Integer>();
 	private boolean currently_storing, ineffective;
 	private Random gen = new Random();
+    private List<Integer> total_history = new ArrayList<Integer>();
 	
 	/*
 	* Creates an empty order queue
@@ -152,6 +153,10 @@ public class Agent implements Comparable<Agent>{
     public boolean isAgentIneffective(){
         return ineffective;
     }
+
+    public List<Integer> getTotalHistory(){
+        return total_history;
+    }
 	
 	public void dumpGoods(){
 		rms = 0;
@@ -162,6 +167,8 @@ public class Agent implements Comparable<Agent>{
 
     public void tabulateIncomeHistory(){
         income_history.add(money);
+        if(total_history.size()!=100)
+            total_history.add(money);
         if(income_history.size() > max_income_history)
             income_history.remove(0);
     }

@@ -143,9 +143,9 @@ public class BizSimMain implements ActionListener{
         environment_controls.add(high_rate);
         environment_controls.add(new JLabel("High Sale:"));
         environment_controls.add(high_sale);
-        environment_controls.add(new JLabel("Medium Rate:"));
+        environment_controls.add(new JLabel("Med Rate:"));
         environment_controls.add(med_rate);
-        environment_controls.add(new JLabel("Medium Sale:"));
+        environment_controls.add(new JLabel("Med Sale:"));
         environment_controls.add(med_sale);
         environment_controls.add(new JLabel("Low Rate:"));
         environment_controls.add(low_rate);
@@ -237,9 +237,9 @@ public class BizSimMain implements ActionListener{
 
     public void actionPerformed(ActionEvent e) {
 
+        // dump ActionEvent information
         Object src = e.getSource();
         String msg = e.getActionCommand();
-
 
 
         if(src == start_stop){
@@ -250,6 +250,7 @@ public class BizSimMain implements ActionListener{
                     synchronized (ps){
                         ps.notify();
                     }
+            System.out.println("Started/Stopped Simulator...");
         }
         else if(src == reset){
             for(ProcessSimulator ps : species){
@@ -260,6 +261,12 @@ public class BizSimMain implements ActionListener{
                     }
                 }
             }
+
+            //clear the Elite Agent data
+            cur_elite_genome.setText("");
+            cur_elite_total.setText("");
+
+            System.out.println("Simulation Reset...");
         }
         else if(src == reconfigure){
 
@@ -295,6 +302,7 @@ public class BizSimMain implements ActionListener{
                     );
                 }
             }
+            System.out.println("Species Reconfigured...");
         }
         else if(msg == "elite_total"){
 
@@ -324,6 +332,7 @@ public class BizSimMain implements ActionListener{
 		private Evolution evo = new Evolution();
         private boolean running;
         private Agent current_elite;
+        private ElitePainter ep = new ElitePainter();
 		
 		public ProcessSimulator(ArrayList<Agent> agents, int generations,
                                 int id, Environment e, ActionListener l){
@@ -344,15 +353,23 @@ public class BizSimMain implements ActionListener{
             current_elite = null;
             prev_elite_total = 0;
 
-            // construct our window
+            //Create a Tabbed panel for the different graphs
+            JTabbedPane graphs = new JTabbedPane();
+            graphs.addTab("Species Average", null, paint, "Graphical " +
+                    "Representation of All Species' Average Performance");
+            graphs.addTab("Elite Performance", null, ep,
+                    "A 100-day Graph of the Elite Agent's Business Model");
+            window.getContentPane().add(graphs);
+
+             // construct our window
             // TODO: consolidate each thread's results into a single window for
-            // TODO: ease of comparison
-			window.setTitle("Average Performance of Each Generation #" + id);
+            // TODO: ease of human comparison
+			window.setTitle("Optimal Division of Tasks in a Business");
 			window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			window.getContentPane().add(paint);
-			window.pack();
-			window.setVisible(true);
+			//window.getContentPane().add(paint);
             running = true;
+            window.pack();
+			window.setVisible(true);
 		}
 
         /*
@@ -479,6 +496,9 @@ public class BizSimMain implements ActionListener{
                         prev_elite_total = elite_most_money;
                         current_elite = children.get(0);
 
+                        ep.setNewElite(current_elite);
+                        ep.repaint();
+
                         //fire an event to the main class
                         listener.actionPerformed(new ActionEvent(this,
                                 ActionEvent.ACTION_PERFORMED, "elite_total"));
@@ -507,12 +527,13 @@ public class BizSimMain implements ActionListener{
                     //add the elite agents into the pool
                     children.addAll(elites);
 
-                    System.out.println(elites.get(0) + ": " + elites.get(0).getMoney());
+                    //System.out.println(elites.get(0) + ": " + elites.get(0).getMoney());
 
                     //reset the elites for the next generation
                     for(Agent elitea : elites)
                         elitea.reset();
 
+                    //repopulate the next generation with new Agents
                     fillWithAgents();
 
                     cur_gen++;
