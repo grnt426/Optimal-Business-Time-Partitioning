@@ -32,9 +32,9 @@ public class Environment{
 		LQ_RATE = 3;
 		MQ_RATE = 5;
 		HQ_RATE = 7;
-		LQ_SALE = 16;
-		MQ_SALE = 24;
-		HQ_SALE = 31;
+		LQ_SALE = 19;
+		MQ_SALE = 29;
+		HQ_SALE = 39;
 		MAX_RMS_PER_AC = 2500;
 		MAX_LQ_PER_AC = 1000;
 		MAX_MQ_PER_AC = 800;
@@ -142,7 +142,7 @@ public class Environment{
 				action += actions.get(i+1) ? "1" : "0";
 				action += actions.get(i+2) ? "1" : "0";
 				//action += actions.get(i+3) ? "1" : "0";
-				
+
 				//Search for Raw Materials
 				if(action.equals("000")){
 					money = agent.getMoney();
@@ -264,8 +264,10 @@ public class Environment{
             //compute the agent's current progress
             agent.tabulateIncomeHistory();
             if(agent.getIncomeRatio() < income_ratio_threshold && current_day < 15){
-                agent.markAgentIneffective();
-                continue;
+                if(!agent.getName().equals("My Agent")){
+                    agent.markAgentIneffective();
+                    continue;
+                }
             }
 		}
 		

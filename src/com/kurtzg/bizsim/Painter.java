@@ -10,7 +10,7 @@ public class Painter extends JPanel{
 	//instance vars
     List<Integer> average_history = new ArrayList<Integer>();
 	int generation_count;
-	double max_y_val = 20000.0, max_y_real = 480.0;
+	double max_y_val = 250000, max_y_real = 480.0;
 	
 	public void paint(Graphics g){
 
@@ -58,9 +58,15 @@ public class Painter extends JPanel{
         int average = 0;
 
         //compute average performance of generation
-		for(Agent a : agents)
+		for(Agent a : agents){
 			if(!a.isAgentIneffective())
 				average+=a.getMoney();
+            if(a.getName().equals("My Agent")){
+                System.out.println("MY AGENT GOT:" + a.getMoney());
+                System.out.println(a.getTotalHistory());
+                System.out.println(a.getChrome());
+            }
+        }
 		average = average/agents.size();
         average_history.add(average);
 

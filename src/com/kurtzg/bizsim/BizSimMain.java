@@ -84,7 +84,7 @@ public class BizSimMain implements ActionListener{
         control_window.setTitle("Control Suite");
         control_window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         control_window.setSize(new Dimension(800, 480));
-        control_window.setAlwaysOnTop(true);
+        //control_window.setAlwaysOnTop(true);
         control_window.setLayout(new BorderLayout());
 
         JPanel species_control = new JPanel();
@@ -380,6 +380,12 @@ public class BizSimMain implements ActionListener{
             paint.clearHistory();
             children.clear();
             fillWithAgents();
+
+            Agent a = new Agent();
+            a.setName("My Agent");
+            a.setChrome("000 000 000 000 000 000 000 011 011 011 011 011 100 101 101 101");
+            children.add(a);
+
             cur_gen = 0;
             current_elite = null;
             prev_elite_total = 0;

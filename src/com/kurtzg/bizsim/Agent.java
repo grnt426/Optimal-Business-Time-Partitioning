@@ -24,9 +24,10 @@ public class Agent implements Comparable<Agent>{
 	private boolean currently_storing, ineffective;
 	private Random gen = new Random();
     private List<Integer> total_history = new ArrayList<Integer>();
+    private String name = "Generated";
 	
 	/*
-	* Creates an empty order queue
+	* Creates an random order queue
 	*/
 	public Agent(){
 		chromosome = new ArrayList<Boolean>();
@@ -36,7 +37,16 @@ public class Agent implements Comparable<Agent>{
 		currently_storing = false;
 		money = 50000;
         max_income_history = 5;
+        name = "Generated";
 	}
+
+    public void setName(String n){
+        name = n;
+    }
+
+    public String getName(){
+        return name == null ? "Generated" : name;
+    }
 	
 	public Agent(ArrayList<Boolean> chromosome){
 		this.chromosome = chromosome;
@@ -88,9 +98,9 @@ public class Agent implements Comparable<Agent>{
 
     public double getIncomeRatio(){
 
-        //if we do not have a complete history, simply return 0
+        //if we do not have a complete history, simply return 1
         if(max_income_history != income_history.size())
-            return 1;
+            return 2;
 
         //otherwise process an average of income growth
         double average = 0.0;

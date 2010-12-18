@@ -15,7 +15,7 @@ import java.util.List;
 public class ElitePainter extends JPanel{
 
     private Agent elite;
-    protected static final double MAX_X = 600.0, MAX_Y = 480.0, MAX_MONEY = 500000.0;
+    protected static final double MAX_X = 600.0, MAX_Y = 480.0, MAX_MONEY = 2000000.0;
 
     public void paint(Graphics g){
 
@@ -34,7 +34,7 @@ public class ElitePainter extends JPanel{
             g.drawString((i*10) + "", (int)(55*i)+1, (int)MAX_Y-2);
             g.drawLine(0, (int)(MAX_Y/10*i), (int)MAX_X, (int)(MAX_Y/10*i));
             if(i != 0)
-                g.drawString("$"+(i*50000), 0, (int)(MAX_Y/10*(10-i)));
+                g.drawString("$"+(i*200000), 0, (int)(MAX_Y/10*(10-i)));
         }
 
         //draw the agent's performance over time
