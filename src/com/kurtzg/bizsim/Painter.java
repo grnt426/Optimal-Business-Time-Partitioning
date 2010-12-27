@@ -2,15 +2,20 @@ package com.kurtzg.bizsim;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Painter extends JPanel{
 
 	//instance vars
-    List<Integer> average_history = new ArrayList<Integer>();
-	int generation_count;
-	double max_y_val = 250000, max_y_real = 480.0;
+    private List<Integer> average_history = new ArrayList<Integer>();
+	private int generation_count;
+	private double max_y_val = 250000, max_y_real = 480.0;
+    private History history;
 	
 	public void paint(Graphics g){
 
@@ -46,12 +51,12 @@ public class Painter extends JPanel{
             g.fillOval(i, (int)((1-avg/max_y_val)*max_y_real+30), 4, 4);
         }
 
-		//just some data to print out
-		//System.out.println("Average Gen #"+generation_count+" $"+avg+" VALUE:"+(1-avg/max_y_val)*max_y_real);
-
 		generation_count++;
 	}
-	
+
+    /*
+     * For ease of redrawing, just store the average generational output
+     */
 	public synchronized void addAgents(List<Agent> agents){
 
         //vars
@@ -79,15 +84,12 @@ public class Painter extends JPanel{
         generation_count = 0;
     }
 
-    public void saveHistory(){
-
-    }
-
-    public void setEliteAgentData(){
-
+    public void setHistory(History h){
+        history = h;
     }
 	
 	public Dimension getPreferredSize(){
 		return new Dimension(601, 481);
 	}
+
 }

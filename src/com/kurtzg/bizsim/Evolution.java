@@ -10,6 +10,7 @@ package com.kurtzg.bizsim; /**
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -27,6 +28,7 @@ public class Evolution{
 	public List<Agent> performCrossover(List<Agent> agents){
 	
 		//vars
+        //Collections.shuffle(agents);
 		int mid = agents.size()/2, rand, gene_count;
 		Agent father, mother;
 		ArrayList<Agent> children = new ArrayList<Agent>();
@@ -69,7 +71,7 @@ public class Evolution{
 	public List<Agent> performMutation(List<Agent> agents){
 		
 		//vars
-		int max_mutations = 16, rand,
+		int max_mutations = 1, rand,
 				chrome_size = agents.get(0).getChrome().size();
 		
 		for(Agent a : agents){

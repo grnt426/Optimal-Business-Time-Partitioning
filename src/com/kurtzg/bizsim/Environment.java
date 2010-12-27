@@ -147,7 +147,7 @@ public class Environment{
 				if(action.equals("000")){
 					money = agent.getMoney();
 					temp_rms = money/RM_COST;
-					temp_rms = temp_rms > MAX_RMS_PER_AC ? 
+					temp_rms = temp_rms > MAX_RMS_PER_AC ?
 									MAX_RMS_PER_AC : temp_rms;
 					money = money - (temp_rms * RM_COST);
 					agent.setMoney(money);

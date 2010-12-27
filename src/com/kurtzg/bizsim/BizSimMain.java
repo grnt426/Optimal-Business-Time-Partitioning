@@ -317,13 +317,16 @@ public class BizSimMain implements ActionListener{
         }
     }
 
+    /*
+     * TODO: This class really deserves its own file, and should be renamed to
+     * TODO: "Species" or something.  Will require a lot of reworking.
+     */
     public class ProcessSimulator implements Runnable{
 	
 		//vars
 		private Environment e;
         private ActionListener listener;
 		private List<Agent> children = new ArrayList<Agent>();
-		//List<List<com.kurtzg.bizsim.Agent>> history = new ArrayList<List<com.kurtzg.bizsim.Agent>>();
 		private int generations, cur_gen, total_agents, id, day_count,
                     prev_elite_total;
         private double elite_percent, parent_percent;
@@ -333,6 +336,7 @@ public class BizSimMain implements ActionListener{
         private boolean running;
         private Agent current_elite;
         private ElitePainter ep = new ElitePainter();
+        private History history = new History();
 		
 		public ProcessSimulator(ArrayList<Agent> agents, int generations,
                                 int id, Environment e, ActionListener l){
@@ -360,6 +364,9 @@ public class BizSimMain implements ActionListener{
             graphs.addTab("Elite Performance", null, ep,
                     "A 100-day Graph of the Elite Agent's Business Model");
             window.getContentPane().add(graphs);
+
+            //give our paint class a copy of the Generational History
+            paint.setHistory(history);
 
              // construct our window
             // TODO: consolidate each thread's results into a single window for
@@ -490,6 +497,9 @@ public class BizSimMain implements ActionListener{
                         e.simulateDay();
                     }
 
+                    //record this generation
+                    history.addGeneration(children);
+
                     //sort the results by money, descending
                     Collections.sort(children);
                     Collections.reverse(children);
@@ -509,10 +519,6 @@ public class BizSimMain implements ActionListener{
                         listener.actionPerformed(new ActionEvent(this,
                                 ActionEvent.ACTION_PERFORMED, "elite_total"));
                     }
-
-                    paint.addAgents(children);
-
-                    //history.add(children);
 
                     //now we need to select agents for crossover, mutation,
                     // and elites for elites, keep the first x%
