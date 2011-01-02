@@ -4,6 +4,7 @@ package com.kurtzg.bizsim;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Model implements ActionListener{
@@ -11,8 +12,8 @@ public class Model implements ActionListener{
     //instance variables
     private List<ActionListener> listeners = new ArrayList<ActionListener>();
     private List<Species> species = new ArrayList<Species>();
+    private List<Generation> processedGenerations = new ArrayList<Generation>();
     private int max_gen_count, species_counter;
-    Environment e = new Environment();
 
     /*
      * Default constructor, nothing fancy
@@ -63,16 +64,21 @@ public class Model implements ActionListener{
         }
     }
 
+    public List<Species> getSpeciesData(){
+        return species;
+    }
+
     public void actionPerformed(ActionEvent e) {
 
         //vars
         Object src = e.getSource();
         String msg = e.getActionCommand();
 
-        if(msg.equals("day_processed")){
+        if(msg.equals("generation_processed")){
 
             //alert the controller that another day has been processed
-
+            processEvent(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
+                    "generation_processed"));
         }
     }
 }

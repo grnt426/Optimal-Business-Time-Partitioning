@@ -336,7 +336,7 @@ public class BizSimMain implements ActionListener{
         private boolean running;
         private Agent current_elite;
         private ElitePainter ep = new ElitePainter();
-        private History history = new History();
+        //private History history = new History();
 		
 		public ProcessSimulator(ArrayList<Agent> agents, int generations,
                                 int id, Environment e, ActionListener l){
@@ -366,7 +366,7 @@ public class BizSimMain implements ActionListener{
             window.getContentPane().add(graphs);
 
             //give our paint class a copy of the Generational History
-            paint.setHistory(history);
+            //paint.setHistory(history);
 
              // construct our window
             // TODO: consolidate each thread's results into a single window for
@@ -498,7 +498,7 @@ public class BizSimMain implements ActionListener{
                     }
 
                     //record this generation
-                    history.addGeneration(children);
+                    //history.addGeneration(children);
 
                     //sort the results by money, descending
                     Collections.sort(children);

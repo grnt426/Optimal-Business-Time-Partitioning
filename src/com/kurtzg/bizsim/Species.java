@@ -19,7 +19,7 @@ public class Species implements Runnable{
 		private Evolution evo = new Evolution();
         private boolean running;
         private Agent current_elite;
-        private History history = new History();
+        private History history;
 
 		public Species(ArrayList<Agent> agents, int generations,
                                 int id, Environment e, ActionListener l){
@@ -33,6 +33,7 @@ public class Species implements Runnable{
 
             //setup all other data
             total_agents = agents.size();
+            history = new History(id);
 			cur_gen = 0;
             day_count = 100;
             elite_percent = .05;
@@ -128,6 +129,10 @@ public class Species implements Runnable{
             return current_elite;
         }
 
+        public Generation getLatestGeneration(){
+            return history.getLastGeneration();
+        }
+
 		public void run(){
 
             //keep the thread alive
@@ -164,7 +169,8 @@ public class Species implements Runnable{
 
                     //alert the model
                     listener.actionPerformed(new ActionEvent(this,
-                            ActionEvent.ACTION_PERFORMED, "day_processed"));
+                            ActionEvent.ACTION_PERFORMED,
+                            "generation_processed"));
 
                     //sort the results by money, descending
                     Collections.sort(children);

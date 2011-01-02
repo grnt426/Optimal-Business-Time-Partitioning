@@ -8,17 +8,22 @@ public class History {
 
     //instance variables
     private List<Generation> generations = new ArrayList<Generation>();
+    int species_id;
 
-    public History(){
-
+    public History(int species_id){
+        this.species_id = species_id;
     }
 
     public void addGeneration(List<Agent> agents){
-        generations.add(new Generation(agents));
+        generations.add(new Generation(agents, species_id));
     }
 
     public List<Generation> getGenerations(){
         return generations;
+    }
+
+    public int getSpeciesId(){
+        return species_id;
     }
 
     public Generation getGeneration(int index){
@@ -30,5 +35,9 @@ public class History {
      */
     public Agent getAgent(int genID, int agentID){
         return getGeneration(genID).getAgent(agentID);
+    }
+
+    public Generation getLastGeneration(){
+        return generations.get(generations.size());
     }
 }
