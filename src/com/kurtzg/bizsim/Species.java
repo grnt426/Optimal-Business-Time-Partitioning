@@ -21,7 +21,7 @@ public class Species implements Runnable{
         private Agent current_elite;
         private History history;
 
-		public Species(ArrayList<Agent> agents, int generations,
+		public Species(int total_agents, int generations,
                                 int id, Environment e, ActionListener l){
 
             //store parameters as instance variables
@@ -29,10 +29,9 @@ public class Species implements Runnable{
             this.id = id;
             this.listener = l;
             this.generations = generations;
-			children = agents;
 
             //setup all other data
-            total_agents = agents.size();
+            this.total_agents = total_agents;
             history = new History(id);
 			cur_gen = 0;
             day_count = 100;
@@ -40,6 +39,7 @@ public class Species implements Runnable{
             parent_percent = .8;
             current_elite = null;
             prev_elite_total = 0;
+            running = true;
 		}
 
         /*
@@ -74,7 +74,7 @@ public class Species implements Runnable{
 
         public void replaceEnvironment(Environment e){
             this.e = e;
-        }
+    }
 
         /*
          * Populates the children array with agents of random creation
@@ -131,6 +131,10 @@ public class Species implements Runnable{
 
         public Generation getLatestGeneration(){
             return history.getLastGeneration();
+        }
+
+        public History getHistory(){
+            return history;
         }
 
 		public void run(){

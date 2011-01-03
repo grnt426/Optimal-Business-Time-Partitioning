@@ -15,16 +15,25 @@ public class Painter extends JPanel{
     private List<Integer> average_history = new ArrayList<Integer>();
 	private int generation_count;
 	private double max_y_val = 250000, max_y_real = 480.0;
-    private History history;
+    private List<Species> species;
+    private List<Color> s_colors = new ArrayList<Color>();
+
+    public Painter(){
+
+        //setup some basic colors for our species
+        s_colors.add(new Color(255, 0, 0));
+        s_colors.add(new Color(0, 255, 0));
+        s_colors.add(new Color(0, 0, 255));
+        s_colors.add(new Color(255, 255, 0));
+        s_colors.add(new Color(0, 255, 255));
+        s_colors.add(new Color(255, 0, 255));
+    }
 	
 	public void paint(Graphics g){
 
         super.paintComponent(g);
 
         setBackground(Color.white);
-
-        if(average_history.size() == 0)
-            return;
 
         //draw the income line separators
         g.setColor(Color.gray);
@@ -41,51 +50,24 @@ public class Painter extends JPanel{
             g.drawLine(x, 0, x, 480);
         }
 
-        //the color of our data point
-        g.setColor(Color.green);
-        int avg = 0;
+        if(species == null)
+            return;
 
-        //draw the current history of all agents
-		for(int i = 0; i < average_history.size(); ++i){
-            avg = average_history.get(i);
-            g.fillOval(i, (int)((1-avg/max_y_val)*max_y_real+30), 4, 4);
-        }
-
-		generation_count++;
-	}
-
-    /*
-     * For ease of redrawing, just store the average generational output
-     */
-	public synchronized void addAgents(List<Agent> agents){
-
-        //vars
-        int average = 0;
-
-        //compute average performance of generation
-		for(Agent a : agents){
-			if(!a.isAgentIneffective())
-				average+=a.getMoney();
-            if(a.getName().equals("My Agent")){
-                System.out.println("MY AGENT GOT:" + a.getMoney());
-                System.out.println(a.getTotalHistory());
-                System.out.println(a.getChrome());
+        for(int i = 0; i < species.size(); ++i){
+            g.setColor(s_colors.get(i));
+            Species s = species.get(i);
+            History h = s.getHistory();
+            List<Generation> gens = h.getGenerations();
+            for(int k = 0; k < gens.size(); ++k){
+                double avg = gens.get(k).getAverage();
+                g.fillOval(k, (int)((1-avg/max_y_val)*max_y_real+30), 4, 4);
             }
         }
-		average = average/agents.size();
-        average_history.add(average);
-
-        //finally, perform a repaint
-        repaint();
-	}
-
-    public void clearHistory(){
-        average_history.clear();
-        generation_count = 0;
     }
 
-    public void setHistory(History h){
-        history = h;
+    public synchronized void setHistory(List<Species> s){
+        species = s;
+        repaint();
     }
 	
 	public Dimension getPreferredSize(){

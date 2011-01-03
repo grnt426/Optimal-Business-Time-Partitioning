@@ -43,7 +43,7 @@ public class Environment{
 		MAX_MQSELL = 1300;
 		MAX_HQSELL = 900;
 		current_day = 0;
-        income_ratio_threshold = 1.1;
+        income_ratio_threshold = 1.2;
 	}
 
 	/*
@@ -264,10 +264,8 @@ public class Environment{
             //compute the agent's current progress
             agent.tabulateIncomeHistory();
             if(agent.getIncomeRatio() < income_ratio_threshold && current_day < 15){
-                if(!agent.getName().equals("My Agent")){
-                    agent.markAgentIneffective();
-                    continue;
-                }
+                agent.markAgentIneffective();
+                continue;
             }
 		}
 		

@@ -41,15 +41,18 @@ public class Generation {
 
         //vars
         double average = 0.0;
+        int total = 0;
 
         //compute average performance of generation
 		for(Agent a : agents){
-			if(!a.isAgentIneffective())
+			if(!a.isAgentIneffective()){
 				average+=a.getMoney();
+                total++;
+            }
         }
 
         //set our global average to our newly computed value
-		this.average = average/agents.size();
+		this.average = average/total;
     }
 
 }

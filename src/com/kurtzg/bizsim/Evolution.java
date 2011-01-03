@@ -32,7 +32,7 @@ public class Evolution{
 		int mid = agents.size()/2, rand, gene_count;
 		Agent father, mother;
 		ArrayList<Agent> children = new ArrayList<Agent>();
-		
+
 		for(int i = 0; i < mid; ++i){
 			
 			//grab the parents

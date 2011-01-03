@@ -71,9 +71,13 @@ public class BizSimMain implements ActionListener{
 			System.err.println(nfe);
 			System.exit(0);
 		}
+
+        //create our Model/View and start the program
+        Model m = new Model();
+        View v = new View(m, numThreads);
 		
 		// Initialize our Main Class's simulator
-		new BizSimMain(numThreads, numAgents, numGenerations);
+		//new BizSimMain(numThreads, numAgents, numGenerations);
 		
 	}
 	
@@ -384,7 +388,6 @@ public class BizSimMain implements ActionListener{
          */
         public void reset(){
             e.purgeAgents();
-            paint.clearHistory();
             children.clear();
             fillWithAgents();
 

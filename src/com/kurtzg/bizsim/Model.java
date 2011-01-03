@@ -13,7 +13,9 @@ public class Model implements ActionListener{
     private List<ActionListener> listeners = new ArrayList<ActionListener>();
     private List<Species> species = new ArrayList<Species>();
     private List<Generation> processedGenerations = new ArrayList<Generation>();
-    private int max_gen_count, species_counter;
+    private int max_gen_count, species_counter, max_agent_count, max_day_count;
+    private double max_elite_percent, max_parent_percent;
+    private boolean running;
 
     /*
      * Default constructor, nothing fancy
@@ -21,9 +23,86 @@ public class Model implements ActionListener{
     public Model(){
 
         //set up our default values
-        max_gen_count = 100;
+        max_gen_count = 400;
+        max_agent_count = 100;
+        max_day_count = 100;
+        max_elite_percent = .05;
+        max_parent_percent = .8;
 
+        //global state values
+        running = true;
     }
+
+    public int getMaxGenCount(){
+        return max_gen_count;
+    }
+
+    public void setMaxGenCout(int gen_count){
+        max_gen_count = gen_count;
+        for(Species s : species)
+            s.setGenerationCount(max_gen_count);
+    }
+
+    public int getTotalSpecies(){
+        return species_counter;
+    }
+
+    public int getMaxAgentCount(){
+        return max_agent_count;
+    }
+
+    public void setMaxAgentCount(int agent_count){
+        max_agent_count = agent_count;
+    }
+
+    public int getDayCount(){
+        return max_day_count;
+    }
+
+    public void setMaxDayCount(int day_count){
+        max_day_count = day_count;
+        for(Species s : species)
+            s.setDayCount(max_day_count);
+    }
+
+    public void setElitePercent(double elite_percent){
+        max_elite_percent = elite_percent;
+        for(Species s : species)
+            s.setElitePercent(max_elite_percent);
+    }
+
+    public double getElitePercent(){
+        return max_elite_percent;
+    }
+
+    public void setParentPercent(double parent_percent){
+        max_parent_percent = parent_percent;
+        for(Species s : species){
+            s.setParentPercent(max_parent_percent);
+        }
+    }
+
+    public double getParentPercent(){
+        return max_parent_percent;
+    }
+
+    public void reconfigureState(Environment e, int agent_count, int day_count,
+                                 int gen_count, double elite_percent,
+                                 double parent_percent){
+
+        //for now, don't allow modification unless we aren't running
+        if(running)
+            return;
+
+        //override old values
+        replaceEnvironment(e);
+        setElitePercent(elite_percent);
+        setParentPercent(parent_percent);
+        setMaxAgentCount(agent_count);
+        setMaxDayCount(day_count);
+        setMaxGenCout(gen_count);
+    }
+
 
     /*
      * Creates an arbitrary number of species to be added to the total pool
@@ -36,8 +115,16 @@ public class Model implements ActionListener{
         //create a new thread, environment, etc for each new species
         for(int i = 0; i < num; ++i){
             e = new Environment();
-            Species s = new Species(null, max_gen_count, species.size(),
-                    e, this);
+            Species s = new Species(max_agent_count, max_gen_count,
+                    species.size(), e, this);
+            s.fillWithAgents();
+
+            //setup our simulation constraints
+            s.setDayCount(max_day_count);
+            s.setElitePercent(max_elite_percent);
+            s.setGenerationCount(max_gen_count);
+            s.setParentPercent(max_parent_percent);
+            s.setAgentCount(max_agent_count);
 
             //create the thread, and run
             Thread t = new Thread(s);
@@ -66,6 +153,37 @@ public class Model implements ActionListener{
 
     public List<Species> getSpeciesData(){
         return species;
+    }
+
+    public void toggleRunningState(){
+        running = !running;
+        for(Species s : species){
+            if(s.toggleRunning()){
+                synchronized (s) {
+                    s.notify();
+                }
+            }
+        }
+    }
+
+    public void resetSimulation(){
+
+        //don't reset an already running simulation
+        if(running)
+            return;
+
+        for(Species s : species)
+            s.reset();
+
+    }
+
+    public void replaceEnvironment(Environment e){
+
+        // TODO: this should pause the thread before replacing the environment
+        // TODO: otherwise it may produce interesting results if it doesn't
+        for(Species s : species){
+            s.replaceEnvironment(e);
+        }
     }
 
     public void actionPerformed(ActionEvent e) {

@@ -6,7 +6,7 @@ import java.util.List;
 public class MainTester{
 
 	public static void main(String[] args){
-		System.out.println("Testing Integrity of com.kurtzg.bizsim.Agent Class");
+		System.out.println("Testing Integrity of Agent Class");
 		Agent a = new Agent();
 		System.out.println(a+"\n");
 		
@@ -15,7 +15,7 @@ public class MainTester{
 		System.out.println(a);
 		
 		//testing default values
-		System.out.println("Printing the current state of the com.kurtzg.bizsim.Agent");
+		System.out.println("Printing the current state of the Agent");
 		System.out.println(a.printState());
 		
 		//adding agent
@@ -27,7 +27,7 @@ public class MainTester{
 		for(int i = 0; i < 100;++i){
 			e.simulateDay();
 		}
-		System.out.println("Printing the current state of the com.kurtzg.bizsim.Agent");
+		System.out.println("Printing the current state of the Agent");
 		System.out.println(a.printState());
 		
 		//create com.kurtzg.bizsim.Evolution chamber
