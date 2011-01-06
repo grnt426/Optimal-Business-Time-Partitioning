@@ -5,7 +5,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Random;
+import java.util.*;
+import java.util.List;
 
 public class View implements ActionListener{
 
@@ -43,6 +44,9 @@ public class View implements ActionListener{
 
         //hand ourselves over to the model to listen for events
         model.addListeners(this);
+
+        //grab the default Environment used by the model
+        Environment e = model.getEnvironment();
 
          // configure our main window which will contain all the other elements
         JFrame control_window = new JFrame();
@@ -92,6 +96,14 @@ public class View implements ActionListener{
         environment_controls.add(new JLabel("Low Sale:"));
         environment_controls.add(low_sale);
 
+        //setup the default values for these text fields
+        high_rate.setText(e.getHQRate()+"");
+        high_sale.setText(e.getHQSale()+"");
+        med_rate.setText(e.getMQRate()+"");
+        med_sale.setText(e.getMQSale()+"");
+        low_rate.setText(e.getLQRate()+"");
+        low_sale.setText(e.getLQSale()+"");
+
         // create a panel for all our simulation variables
         JPanel simulation_controls = new JPanel();
         simulation_controls.setBorder(BorderFactory.createTitledBorder(
@@ -107,6 +119,13 @@ public class View implements ActionListener{
         simulation_controls.add(parent_percent);
         simulation_controls.add(new JLabel("Agent Performance"));
         simulation_controls.add(agent_performance);
+
+        //setup the default values for these text fields
+        agent_count.setText(model.getMaxAgentCount()+"");
+        generation_count.setText(model.getMaxGenCount()+"");
+        elite_percent.setText(model.getElitePercent()+"");
+        parent_percent.setText(model.getParentPercent()+"");
+        agent_performance.setText(e.getIncomeRatioThreshold()+"");
 
         // create a panel for displaying information about the current elite
         // agent
@@ -191,6 +210,21 @@ public class View implements ActionListener{
                //need to update the generation graph
                paint.setHistory(model.getSpeciesData());
             }
+            else if(msg.equals("new_elite")){
+
+                List<Agent> elites = model.getElites();
+                Agent top_elite = elites.get(0);
+
+                //update the paint class
+                ep.setElites(elites);
+
+                if(top_elite != null){
+
+                    //update the GUI window
+                    cur_elite_total.setText("$" + top_elite.getMoney());
+                    cur_elite_genome.setText(top_elite.toString());
+                }
+            }
         }
 
         //event received from our GUI panel
@@ -215,41 +249,40 @@ public class View implements ActionListener{
                 //create a new environment with the new parameters
                 Environment environment = new Environment();
 
-                //override existing values
-                environment.setHQSale(Integer.parseInt(high_sale.getText()));
-                environment.setHQRate(Integer.parseInt(high_rate.getText()));
-                environment.setMQRate(Integer.parseInt(med_rate.getText()));
-                environment.setMQSale(Integer.parseInt(med_sale.getText()));
-                environment.setLQRate(Integer.parseInt(low_rate.getText()));
-                environment.setLQSale(Integer.parseInt(low_sale.getText()));
-                environment.setIncomeRatioThreshold(Double.parseDouble(
-                        agent_performance.getText())
-                );
+                //vars
+                int agentCount = 0, dayCount = 0, genCount = 0;
+                double elitePercent = 0, parentPercent = 0;
 
-                //grab the rest of the values interdependent of the environment
-                int agentCount = Integer.parseInt(agent_count.getText());
-                int dayCount = Integer.parseInt(day_count.getText());
-                double elitePercent = Double.parseDouble(elite_percent.getText());
-                int genCount = Integer.parseInt(generation_count.getText());
-                double parentPercent = Double.parseDouble(parent_percent.getText());
+                try{
 
+                    //override existing values
+                    environment.setHQSale(Integer.parseInt(high_sale.getText()));
+                    environment.setHQRate(Integer.parseInt(high_rate.getText()));
+                    environment.setMQRate(Integer.parseInt(med_rate.getText()));
+                    environment.setMQSale(Integer.parseInt(med_sale.getText()));
+                    environment.setLQRate(Integer.parseInt(low_rate.getText()));
+                    environment.setLQSale(Integer.parseInt(low_sale.getText()));
+                    environment.setIncomeRatioThreshold(Double.parseDouble(
+                            agent_performance.getText())
+                    );
+
+                    //grab the rest of the values interdependent of the environment
+                    agentCount = Integer.parseInt(agent_count.getText());
+                    dayCount = Integer.parseInt(day_count.getText());
+                    elitePercent = Double.parseDouble(elite_percent.getText());
+                    genCount = Integer.parseInt(generation_count.getText());
+                    parentPercent = Double.parseDouble(parent_percent.getText());
+                }
+                catch(NumberFormatException nfe){
+                    System.err.println("ERROR: BAD INPUT! " + nfe);
+                    return;
+                }
+
+                //make the call to tell the model to update everything
                 model.reconfigureState(environment, agentCount, dayCount,
                         genCount, elitePercent, parentPercent);
 
                 System.out.println("Species Reconfigured...");
-            }
-            else if(msg == "elite_total"){
-
-                // one of the threads has a new elite
-                // TODO: Later, we are going to want to differentiate between the
-                // TODO: different threads
-                // TODO: THE TODO ABOVE IS WORTHLESS, THE MODEL WILL HANDLE THIS
-                // TODO: EASILY
-                //current_elite = ((ProcessSimulator) src).getCurrentElite();
-
-                //update our GUI
-                //cur_elite_total.setText("$" + current_elite.getMoney());
-                //cur_elite_genome.setText(current_elite.toString());
             }
         }
     }

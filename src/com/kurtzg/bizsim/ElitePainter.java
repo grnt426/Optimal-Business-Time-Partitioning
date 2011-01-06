@@ -5,28 +5,29 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-/**
- * Created by IntelliJ IDEA.
- * User: grnt426
- * Date: 12/15/10
- * Time: 12:06 AM
- * To change this template use File | Settings | File Templates.
- */
 public class ElitePainter extends JPanel{
 
-    private Agent elite;
-    protected static final double MAX_X = 600.0, MAX_Y = 480.0, MAX_MONEY = 2000000.0;
+    private List<Agent> elites = new ArrayList<Agent>();
+    protected static final double MAX_X = 600.0, MAX_Y = 480.0,
+            MAX_MONEY = 2000000.0;
+    private List<Color> s_colors = new ArrayList<Color>();
+
+    public ElitePainter(){
+
+        //setup some basic colors for our species
+        s_colors.add(new Color(255, 0, 0));
+        s_colors.add(new Color(0, 255, 0));
+        s_colors.add(new Color(0, 0, 255));
+        s_colors.add(new Color(255, 255, 0));
+        s_colors.add(new Color(0, 255, 255));
+        s_colors.add(new Color(255, 0, 255));
+    }
 
     public void paint(Graphics g){
 
         super.paintComponent(g);
 
         setBackground(Color.WHITE);
-
-        //don't paint if the agent was never set
-        if(elite == null){
-            return;
-        }
 
         //draw our x- and y-axis
         for(int i = 0; i < 11; ++i){
@@ -37,20 +38,26 @@ public class ElitePainter extends JPanel{
                 g.drawString("$"+(i*200000), 0, (int)(MAX_Y/10*(10-i)));
         }
 
-        //draw the agent's performance over time
-        List<Integer> income_history = elite.getTotalHistory();
-        g.setColor(Color.GREEN);
-        for(int i = 0; i < income_history.size(); ++i){
-            int income = income_history.get(i);
-            g.fillOval((int)(i*5.5), (int)((1-income/MAX_MONEY)*MAX_Y), 3, 3);
+        //draw each elite agent from all species
+        for(int i = 0; i < elites.size(); ++i){
+            g.setColor(s_colors.get(i));
+            Agent a = elites.get(i);
+            if(a == null)
+                continue;
+            List<Integer> income_history = a.getTotalHistory();
+            for(int k = 0; k < income_history.size(); ++k){
+                int income = income_history.get(k);
+                g.fillOval((int)(k*5.5), (int)((1-income/MAX_MONEY)*MAX_Y), 3, 3);
+            }
         }
     }
 
-    public void setNewElite(Agent e){
-        elite = e;
+    public void setElites(List<Agent> elites){
+        this.elites = elites;
+        repaint();
     }
 
-    public Dimension getPreferSize(){
+    public Dimension getPreferredSize(){
         return new Dimension((int)MAX_X+1, (int)MAX_Y+1);
     }
 }

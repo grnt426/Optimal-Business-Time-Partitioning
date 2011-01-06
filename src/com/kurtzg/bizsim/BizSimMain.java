@@ -515,7 +515,7 @@ public class BizSimMain implements ActionListener{
                         prev_elite_total = elite_most_money;
                         current_elite = children.get(0);
 
-                        ep.setNewElite(current_elite);
+                        //ep.setNewElite(current_elite);
                         ep.repaint();
 
                         //fire an event to the main class

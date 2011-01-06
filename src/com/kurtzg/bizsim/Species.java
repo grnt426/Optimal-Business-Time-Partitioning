@@ -190,7 +190,7 @@ public class Species implements Runnable{
 
                         //fire an event to the model
                         listener.actionPerformed(new ActionEvent(this,
-                                ActionEvent.ACTION_PERFORMED, "elite_total"));
+                                ActionEvent.ACTION_PERFORMED, "new_elite"));
                     }
 
                     //now we need to select agents for crossover, mutation,
