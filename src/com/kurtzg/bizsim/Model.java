@@ -25,8 +25,8 @@ public class Model implements ActionListener{
     public Model(){
 
         //set up our default values
-        max_gen_count = 40;
-        max_agent_count = 10;
+        max_gen_count = 600;
+        max_agent_count = 50;
         max_day_count = 100;
         max_elite_percent = .05;
         max_parent_percent = .8;
@@ -139,7 +139,7 @@ public class Model implements ActionListener{
             s.setParentPercent(max_parent_percent);
             s.setAgentCount(max_agent_count);
 
-            //create the thread, and run
+            //create the thread and run
             Thread t = new Thread(s);
             t.setPriority(8);
             t.start();
@@ -172,8 +172,9 @@ public class Model implements ActionListener{
         return species;
     }
 
-    public void toggleRunningState(){
-        running = !running;
+    public synchronized void toggleRunningState(){
+
+        //toggle all species
         for(Species s : species){
             if(s.toggleRunning()){
                 synchronized (s) {
@@ -181,17 +182,24 @@ public class Model implements ActionListener{
                 }
             }
         }
+        running = !running;
     }
 
-    public void resetSimulation(){
+    public synchronized void resetSimulation(){
 
         //don't reset an already running simulation
         if(running)
-            return;
+           return;
 
-        for(Species s : species)
+        //reset all the species
+        for(Species s : species){
             s.reset();
+            synchronized (s){
+                s.notify();
+            }
+        }
 
+        running = true;
     }
 
     public void replaceEnvironment(Environment e){
@@ -222,6 +230,7 @@ public class Model implements ActionListener{
 
             Species s = (Species) src;
 
+            //replace the previous species' elite with the new one
             elites.set(species.indexOf(s), s.getCurrentElite());
 
             //alert the controller

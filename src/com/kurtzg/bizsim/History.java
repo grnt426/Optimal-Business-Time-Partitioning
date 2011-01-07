@@ -30,6 +30,10 @@ public class History {
         return generations.get(index);
     }
 
+    public void clearHistory(){
+        generations.clear();
+    }
+
     /*
      * Convenience method
      */

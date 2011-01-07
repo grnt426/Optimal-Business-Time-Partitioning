@@ -119,13 +119,16 @@ public class View implements ActionListener{
         simulation_controls.add(parent_percent);
         simulation_controls.add(new JLabel("Agent Performance"));
         simulation_controls.add(agent_performance);
+        simulation_controls.add(new JLabel("Day Count"));
+        simulation_controls.add(day_count);
 
         //setup the default values for these text fields
-        agent_count.setText(model.getMaxAgentCount()+"");
+        agent_count.setText(model.getMaxAgentCount() + "");
         generation_count.setText(model.getMaxGenCount()+"");
         elite_percent.setText(model.getElitePercent()+"");
         parent_percent.setText(model.getParentPercent()+"");
         agent_performance.setText(e.getIncomeRatioThreshold()+"");
+        day_count.setText("100");
 
         // create a panel for displaying information about the current elite
         // agent

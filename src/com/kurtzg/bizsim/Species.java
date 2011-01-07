@@ -51,6 +51,7 @@ public class Species implements Runnable{
             e.purgeAgents();
             children.clear();
             fillWithAgents();
+            history.clearHistory();
 
             //reset vars
             cur_gen = 0;
