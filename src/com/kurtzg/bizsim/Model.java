@@ -25,7 +25,7 @@ public class Model implements ActionListener{
     public Model(){
 
         //set up our default values
-        max_gen_count = 600;
+        max_gen_count = 60;
         max_agent_count = 50;
         max_day_count = 100;
         max_elite_percent = .05;
@@ -172,7 +172,7 @@ public class Model implements ActionListener{
         return species;
     }
 
-    public synchronized void toggleRunningState(){
+    public synchronized boolean toggleRunningState(){
 
         //toggle all species
         for(Species s : species){
@@ -183,13 +183,14 @@ public class Model implements ActionListener{
             }
         }
         running = !running;
+        return running;
     }
 
     public synchronized void resetSimulation(){
 
         //don't reset an already running simulation
         if(running)
-           return;
+           processError("Must Pause Simulation Before Running!");
 
         //reset all the species
         for(Species s : species){
@@ -212,6 +213,11 @@ public class Model implements ActionListener{
 
         //store for later
         environment = e;
+    }
+
+    public void processError(String errMsg){
+        processEvent(new ActionEvent(new Error(errMsg),
+                ActionEvent.ACTION_PERFORMED, "Error"));
     }
 
     public void actionPerformed(ActionEvent e) {

@@ -31,8 +31,8 @@ public class ElitePainter extends JPanel{
 
         //draw our x- and y-axis
         for(int i = 0; i < 11; ++i){
-            g.drawLine((int)(55*i), 0, (int)(55*i), (int)MAX_Y);
-            g.drawString((i*10) + "", (int)(55*i)+1, (int)MAX_Y-2);
+            g.drawLine((55*i), 0, (55*i), (int)MAX_Y);
+            g.drawString((i*10) + "", (55*i)+1, (int)MAX_Y-2);
             g.drawLine(0, (int)(MAX_Y/10*i), (int)MAX_X, (int)(MAX_Y/10*i));
             if(i != 0)
                 g.drawString("$"+(i*200000), 0, (int)(MAX_Y/10*(10-i)));

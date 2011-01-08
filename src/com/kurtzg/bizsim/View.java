@@ -29,7 +29,8 @@ public class View implements ActionListener{
     JTextField agent_performance = new JTextField();
     JTextField cur_elite_total = new JTextField("0");
     JTextArea cur_elite_genome = new JTextArea(15, 4);
-    JLabel error_label = new JLabel();
+    JTextArea message_history = new JTextArea(11, 29);
+    JScrollPane message_history_scroll = new JScrollPane(message_history);
 
     //initialize paint classes
     Painter paint = new Painter();
@@ -53,7 +54,6 @@ public class View implements ActionListener{
         control_window.setTitle("Control Suite");
         control_window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         control_window.setSize(new Dimension(800, 480));
-        //control_window.setAlwaysOnTop(true);
         control_window.setLayout(new BorderLayout());
 
         //species List
@@ -143,6 +143,14 @@ public class View implements ActionListener{
         JScrollPane genome_scroll = new JScrollPane(cur_elite_genome);
         elite_panel.add(genome_scroll);
 
+        // create a panel for the message history
+        JPanel message_panel = new JPanel();
+        message_panel.setBorder(BorderFactory.createTitledBorder(
+                "Message History"
+        ));
+        message_panel.add(message_history_scroll);
+        message_history.setText("Simulation Started!");
+
         // this panel encompasses the different panels for altering and showing
         // the current state of the simulation
         JPanel field_controls = new JPanel();
@@ -150,11 +158,7 @@ public class View implements ActionListener{
         field_controls.add(environment_controls);
         field_controls.add(simulation_controls);
         field_controls.add(elite_panel);
-
-        //set some attributes on misc. GUI stuff
-        cur_elite_genome.setWrapStyleWord(true);
-        cur_elite_genome.setEditable(false);
-        cur_elite_genome.setLineWrap(true);
+        field_controls.add(message_panel);
 
         // set the size of the button to just 3 characters
         high_rate.setColumns(3);
@@ -170,6 +174,9 @@ public class View implements ActionListener{
         control_flow_buttons.add(start_stop);
         control_flow_buttons.add(reset);
         control_flow_buttons.add(reconfigure);
+        cur_elite_genome.setWrapStyleWord(true);
+        cur_elite_genome.setEditable(false);
+        cur_elite_genome.setLineWrap(true);
 
         // add our components to the window
         species_control.add(species_list_l);
@@ -179,7 +186,6 @@ public class View implements ActionListener{
         control_window.add(control_flow_buttons, BorderLayout.SOUTH);
         control_window.setLocation(620, 0);
         control_window.setVisible(true);
-
 
          //Create a Tabbed panel for the different graphs
         graphWindow = new JFrame();
@@ -196,7 +202,10 @@ public class View implements ActionListener{
 
         //Now, create our first species
         model.creteNewSpecies(numThreads);
+    }
 
+    public void appendMessage(String msg){
+        message_history.setText(message_history.getText() + "\n" + msg);
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -228,14 +237,22 @@ public class View implements ActionListener{
                     cur_elite_genome.setText(top_elite.toString());
                 }
             }
+            else if(msg.equals("Error")){
+
+                Error err = (Error) src;
+
+                //update the error field
+                message_history.setText(message_history.getText() + "\n" +
+                        err.getMsg());
+            }
         }
 
         //event received from our GUI panel
         else{
 
             if(src == start_stop){
-                model.toggleRunningState();
-                System.out.println("Started/Stopped Simulator...");
+                appendMessage((model.toggleRunningState() ? "Running":"Stopping")
+                        + " Simulator...");
             }
             else if(src == reset){
 
@@ -245,7 +262,7 @@ public class View implements ActionListener{
                 cur_elite_genome.setText("");
                 cur_elite_total.setText("");
 
-                System.out.println("Simulation Reset...");
+                appendMessage("Simulation Reset...\nSimulation Running...");
             }
             else if(src == reconfigure){
 
@@ -277,7 +294,7 @@ public class View implements ActionListener{
                     parentPercent = Double.parseDouble(parent_percent.getText());
                 }
                 catch(NumberFormatException nfe){
-                    System.err.println("ERROR: BAD INPUT! " + nfe);
+                    appendMessage("Error: Use only numbers!");
                     return;
                 }
 
@@ -285,7 +302,7 @@ public class View implements ActionListener{
                 model.reconfigureState(environment, agentCount, dayCount,
                         genCount, elitePercent, parentPercent);
 
-                System.out.println("Species Reconfigured...");
+                appendMessage("Species Reconfigured...");
             }
         }
     }
