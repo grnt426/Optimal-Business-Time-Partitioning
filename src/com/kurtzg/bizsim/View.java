@@ -5,10 +5,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.*;
 import java.util.List;
 
-public class View implements ActionListener{
+public class View implements ActionListener, MouseListener{
 
     // global instance variables
     // global GUI controls
@@ -31,10 +33,13 @@ public class View implements ActionListener{
     JTextArea cur_elite_genome = new JTextArea(15, 4);
     JTextArea message_history = new JTextArea(11, 29);
     JScrollPane message_history_scroll = new JScrollPane(message_history);
+    JTabbedPane graphs = new JTabbedPane();
 
     //initialize paint classes
     Painter paint = new Painter();
     ElitePainter ep = new ElitePainter();
+    GenerationPainter gp = new GenerationPainter();
+    AgentPainter ap = new AgentPainter();
 
     private Model model;
     private JFrame graphWindow;
@@ -187,13 +192,20 @@ public class View implements ActionListener{
         control_window.setLocation(620, 0);
         control_window.setVisible(true);
 
-         //Create a Tabbed panel for the different graphs
+        // setup our graphics school
+        paint.addMouseListener(this);
+        gp.addMouseListener(this);
+
+        // Create a Tabbed panel for the different graphs
         graphWindow = new JFrame();
-        JTabbedPane graphs = new JTabbedPane();
         graphs.addTab("Species Average", null, paint, "Graphical " +
                 "Representation of All Species' Average Performance");
         graphs.addTab("Elite Performance", null, ep,
                 "A 100-day Graph of the Elite Agent's Business Model");
+        graphs.addTab("Generational Output", null, gp,
+                "The Output of each agent in a given generation");
+        graphs.addTab("Agent Performance", null, ap,
+                "The Daily Workings of an Individual Agent");
         graphWindow.getContentPane().add(graphs);
         graphWindow.setTitle("Optimal Division of Tasks in a Business");
         graphWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -305,5 +317,47 @@ public class View implements ActionListener{
                 appendMessage("Species Reconfigured...");
             }
         }
+    }
+
+    public void mouseClicked(MouseEvent e) {
+
+        // dump event data
+        Object src = e.getSource();
+        int x = e.getX(), y = e.getY();
+
+        // if we got a click event from our paint class, we want a closer look
+        // at that generation
+        if(src == paint){
+
+            // grab the clicked generation and pass to the generational
+            // painter, then change to that panel
+            Generation gen = paint.getClickedGeneration(x, y);
+            gp.setGeneration(gen);
+            graphs.setSelectedIndex(2);
+        }
+
+        // if we got a click event from our Generational Painter class, then
+        // we need to show the graph for a single agent
+        else if(src == gp){
+            Agent a = gp.getClickedAgent(x, y);
+            ap.setAgent(a);
+            graphs.setSelectedIndex(3);
+        }
+    }
+
+    public void mousePressed(MouseEvent e) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void mouseReleased(MouseEvent e) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void mouseEntered(MouseEvent e) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void mouseExited(MouseEvent e) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 }

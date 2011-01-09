@@ -1,6 +1,8 @@
 package com.kurtzg.bizsim;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -9,7 +11,7 @@ public class Generation {
     //instance variables
     private List<Agent> agents = new ArrayList<Agent>();
     private double average = -1;
-    private int species_id, gen_id;
+    private int species_id, gen_id, highest_income, lowest_income;
     private static int id = 0;
 
     public Generation(List<Agent> agents, int species_id){
@@ -17,6 +19,11 @@ public class Generation {
         this.agents = agents;
         gen_id = id;
         id++;
+
+        //sort the agents
+        Collections.sort(agents);
+        highest_income = agents.get(agents.size()-1).getMoney();
+        lowest_income = agents.get(0).getMoney();
     }
 
     public List<Agent> getAgents(){
@@ -29,6 +36,14 @@ public class Generation {
 
     public int getSpeciesId(){
         return species_id;
+    }
+
+    public int getHighestIncome(){
+        return highest_income;
+    }
+
+    public int getLowestIncome(){
+        return lowest_income;
     }
 
     public double getAverage(){

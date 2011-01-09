@@ -7,7 +7,8 @@ public class GenerationPainter extends JPanel{
 
     //instance vars
     private Generation generation;
-    private int max_income, min_income, agent_count, max_x = 640, max_y = 480;
+    private double max_income, min_income;
+    private int agent_count, max_x = 600, max_y = 480;
 
     public GenerationPainter(){
         generation = null;
@@ -19,8 +20,13 @@ public class GenerationPainter extends JPanel{
         super.paintComponent(g);
         setBackground(Color.WHITE);
 
+        if(generation == null)
+            return;
+
         //grid boundaries, give a 10px buffer
-        int agent_distance = (max_x-10)/agent_count;
+        int agent_distance = max_x/agent_count;
+
+        g.setColor(Color.gray);
 
         //draw the grid
         for(int i = 0; i < agent_count*.2; ++i){
@@ -30,22 +36,26 @@ public class GenerationPainter extends JPanel{
             g.drawLine(x, 0, x, max_y);
         }
 
-        if(generation == null)
-            return;
+        for(int i = 0; i < 8; ++i){
+            int y = max_y/8*i;
+            g.drawLine(0, y, max_x, y);
+            g.drawString("$"+(max_income/8*(8-i)), 0, y-4);
+        }
 
         //draw the relative incomes of all agents in the generation
+        g.setColor(Color.red);
         for(int i = 0; i < agent_count; ++i){
             Agent a = generation.getAgent(i);
 
             //define the x and circumference of the dot
-            int x = i * agent_distance;
-            int circ = 3;
+            int x = i * agent_distance+2;
+            int circumference = 4;
 
             //we need agents with the most money at the top
-            int y = max_y - (a.getMoney() / max_income * max_y);
+            int y = max_y - (int)(a.getMoney() / max_income * max_y)-10;
 
             //draw the actual dot
-            g.fillOval(x, y, circ, circ);
+            g.fillOval(x, y, circumference, circumference);
         }
     }
 
@@ -55,11 +65,16 @@ public class GenerationPainter extends JPanel{
         max_income = (int)(g.getHighestIncome() * 1.2);
         min_income = (int)(g.getLowestIncome() * .8);
 
+
         //store everything else
         agent_count = g.getAgents().size();
         generation = g;
 
         repaint();
+    }
+
+    public Agent getClickedAgent(int x, int y){
+        return generation.getAgent(10);
     }
 
     public Dimension getPreferredSize(){

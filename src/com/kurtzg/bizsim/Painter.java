@@ -71,6 +71,10 @@ public class Painter extends JPanel{
         species = s;
         repaint();
     }
+
+    public Generation getClickedGeneration(int x, int y){
+        return species.get(0).getHistory().getGeneration(3);
+    }
 	
 	public Dimension getPreferredSize(){
 		return new Dimension(601, 481);
