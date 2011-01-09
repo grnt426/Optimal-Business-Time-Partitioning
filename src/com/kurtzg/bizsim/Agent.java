@@ -1,5 +1,7 @@
-package com.kurtzg.bizsim; /**
-* File: 		com.kurtzg.bizsim.Agent.java
+package com.kurtzg.bizsim;
+
+/**
+* File: 		Agent.java
 *
 * Author: 		Grant Kurtz
 *
@@ -7,6 +9,8 @@ package com.kurtzg.bizsim; /**
 *				an agent, represented by a bit-string to store all of the
 *				agent's actions through out a single business day.
 *
+* TODO:         Need to create a gene class for easy creation of individual
+* TODO:         actions
 */
 
 import java.util.ArrayList;
@@ -27,7 +31,7 @@ public class Agent implements Comparable<Agent>{
     private String name = "Generated";
 	
 	/*
-	* Creates an random order queue
+	* Creates a random order queue for our agent
 	*/
 	public Agent(){
 		chromosome = new ArrayList<Boolean>();
@@ -37,7 +41,6 @@ public class Agent implements Comparable<Agent>{
 		currently_storing = false;
 		money = 50000;
         max_income_history = 5;
-        name = "Generated";
 	}
 
     public void setName(String n){
@@ -45,7 +48,7 @@ public class Agent implements Comparable<Agent>{
     }
 
     public String getName(){
-        return name == null ? "Generated" : name;
+        return name;
     }
 	
 	public Agent(ArrayList<Boolean> chromosome){
@@ -56,23 +59,53 @@ public class Agent implements Comparable<Agent>{
 	public ArrayList<Boolean> getChrome(){
 		return chromosome;
 	}
+
+    /*
+     * Nothing special, just makes sure the agent has all the needed bits
+     * necessary to represent a complete day's actions
+     *
+     * Returns                  true if the agent has the correct number of
+     *                          bits, otherwise false
+     */
+    public boolean hasWellFormedGenome(){
+        return chromosome.size() == MAX_CHROMOSOME_LENGTH;
+    }
 	
 	public void setChrome(ArrayList<Boolean> chrome){
 		chromosome = chrome;
 	}
-	
-	public void setChrome(String chrome){
+
+    /*
+     * This is a convenience method so that a human can quickly create a test
+     * agent.  All spaces are ignored (so that strings can be created like
+     * "000 010 111"), the rest are translated to the appropriate true/false
+     * values
+     *
+     * TODO:                    Consider throwing an exception if the genome
+     * TODO:                    is malformed
+     *
+     * Param    chrome          A string that represents the agent's genome
+     *
+     * Returns                  true if the given genome is well formed
+     */
+	public boolean setChrome(String chrome){
 		chromosome = new ArrayList<Boolean>();
 		for(Character c : chrome.toCharArray()){
 			if(c == ' ')
 				continue;
 			chromosome.add(c == '0' ? false : true);
 		}
+        return hasWellFormedGenome();
 	}
-	
+
+    /*
+     * Will reset the agent to default values as if the simulation were never
+     * run (however, the complete history is still preserved)
+     */
 	public void reset(){
 		money = 50000;
 		currently_storing = false;
+        income_history.clear();
 		dumpGoods();
 	}
 	
@@ -96,11 +129,23 @@ public class Agent implements Comparable<Agent>{
 		return hqfg;
 	}
 
+    /*
+     * Huge issues with this method, but it is supposed to take a moving and
+     * then total average over 5 days to see if this agent is meeting a
+     * threshold of income growth.
+     *
+     * Returns                  the average percentage of growth from each day
+     *                          to the next.
+     */
     public double getIncomeRatio(){
 
         //if we do not have a complete history, simply return 1
         if(max_income_history != income_history.size())
             return 2;
+
+        //don't bother calculating it again if we are already marked useless
+        if(isAgentIneffective())
+            return 0;
 
         //otherwise process an average of income growth
         double average = 0.0;
@@ -167,7 +212,11 @@ public class Agent implements Comparable<Agent>{
     public List<Integer> getTotalHistory(){
         return total_history;
     }
-	
+
+    /*
+     * Resets held Raw Materials and Finished Goods, usually called when the
+     * agent did not store their goods at the end of the day
+     */
 	public void dumpGoods(){
 		rms = 0;
 		lqfg = 0;
@@ -175,6 +224,10 @@ public class Agent implements Comparable<Agent>{
 		hqfg = 0;
 	}
 
+    /*
+     * Stores a running history of the agent's income over time, as well as
+     * caching the most recent income history.
+     */
     public void tabulateIncomeHistory(){
         income_history.add(money);
         if(total_history.size()!=100)
@@ -183,10 +236,21 @@ public class Agent implements Comparable<Agent>{
             income_history.remove(0);
     }
 
+    /*
+     * Calling this method will disable this agent from most tasks, averages
+     * method calls, etc.  Only call this method if the agent will never
+     * be used outside of just retaining for history's sake
+     */
     public void markAgentIneffective(){
         ineffective = true;
     }
-	
+
+    /*
+     * Prints out a representation of the agent's actions as sequence of
+     * grouped binary numbers, ie. {000, 010, 111}
+     *
+     * Returns                  a formatted string representation of the agent
+     */
 	public String toString(){
 		String s;
 		int i = 1;
@@ -203,7 +267,16 @@ public class Agent implements Comparable<Agent>{
 		s = s.substring(0, s.length()-2)+"}";
 		return s;
 	}
-	
+
+    /*
+     * Compares this agent to another agent based on total standing money
+     *
+     * Param    a               the agent to compare against
+     *
+     * Returns                  -1 if this agent has less money than the given,
+     *                          0 if we have the same amount of money, and 1
+     *                          if this agent has more money
+     */
 	public int compareTo(Agent a){
 		a = (Agent) a;
 		if(money < a.getMoney())
@@ -212,7 +285,10 @@ public class Agent implements Comparable<Agent>{
 			return 1;
 		return 0;
 	}
-	
+
+    /*
+     * Prints out the Agent's current inventory
+     */
 	public String printState(){
 		return "Money: " + getMoney() + "\nRMs: " + getRawMaterials() 
 			+ "\nLow-Quality FGs: " + getProducedLQ() 
