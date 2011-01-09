@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class Species implements Runnable{
@@ -20,6 +21,7 @@ public class Species implements Runnable{
         private boolean running;
         private Agent current_elite;
         private History history;
+        Date d;
 
 		public Species(int total_agents, int generations,
                                 int id, Environment e, ActionListener l){
@@ -140,6 +142,9 @@ public class Species implements Runnable{
 
 		public void run(){
 
+            //vars
+            List<Agent> elites, parents;
+
             //keep the thread alive
             while(true){
 
@@ -196,13 +201,13 @@ public class Species implements Runnable{
 
                     //now we need to select agents for crossover, mutation,
                     // and elites for elites, keep the first x%
-                    List<Agent> elites = children.subList(
+                    elites = children.subList(
                             0, (int)(children.size()*elite_percent)
                     );
 
                     //for parents to keep, simply choose the top y%
                     // (including the elites)
-                    List<Agent> parents = children.subList(0,
+                    parents = children.subList(0,
                                             (int)(children.size()
                                                     *parent_percent));
 
@@ -223,6 +228,8 @@ public class Species implements Runnable{
                     fillWithAgents();
 
                     cur_gen++;
+
+
                 }
                 running = false;
             }

@@ -9,11 +9,14 @@ public class Generation {
     //instance variables
     private List<Agent> agents = new ArrayList<Agent>();
     private double average = -1;
-    private int species_id;
+    private int species_id, gen_id;
+    private static int id = 0;
 
     public Generation(List<Agent> agents, int species_id){
         this.species_id = species_id;
         this.agents = agents;
+        gen_id = id;
+        id++;
     }
 
     public List<Agent> getAgents(){
@@ -33,6 +36,9 @@ public class Generation {
         //avoid recomputing the average until necessary
         if(average == -1)
             computeAverage();
+
+        if(id == 3 && average == -1)
+            System.out.println("JKHSDJKFSD");
 
         return average;
     }

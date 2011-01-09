@@ -9,6 +9,7 @@ package com.kurtzg.bizsim; /**
 */
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Environment{
@@ -62,6 +63,7 @@ public class Environment{
 	
 	public void purgeAgents(){
 		agents.clear();
+        current_day = 0;
 	}
 
     /*
@@ -135,13 +137,12 @@ public class Environment{
 			actions = agent.getChrome();
 			int money, rms, lqfg, mqfg, hqfg;
 			int temp_rms, temp_fgs, temp_sale;
-			
+
 			//process all the actions for this agent
 			for(int i = 0; i<actions.size();i=i+3){
 				String action = actions.get(i) ? "1":"0";
 				action += actions.get(i+1) ? "1" : "0";
 				action += actions.get(i+2) ? "1" : "0";
-				//action += actions.get(i+3) ? "1" : "0";
 
 				//Search for Raw Materials
 				if(action.equals("000")){
@@ -263,12 +264,11 @@ public class Environment{
 
             //compute the agent's current progress
             agent.tabulateIncomeHistory();
-            if(agent.getIncomeRatio() < income_ratio_threshold && current_day < 15){
+            if(agent.getIncomeRatio() < income_ratio_threshold && current_day < 0){
                 agent.markAgentIneffective();
                 continue;
             }
 		}
-		
-		current_day++;
+        current_day++;
 	}
 }

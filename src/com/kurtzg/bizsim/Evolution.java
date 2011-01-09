@@ -32,13 +32,15 @@ public class Evolution{
 		int mid = agents.size()/2, rand, gene_count;
 		Agent father, mother;
 		ArrayList<Agent> children = new ArrayList<Agent>();
+        Random gen = new Random();
+        //Collections.shuffle(agents);
 
-		for(int i = 0; i < mid; ++i){
+		for(int i = 0; i < agents.size()-1; i+=2){
 			
 			//grab the parents
 			father = agents.get(i);
-			mother = agents.get(mid+i);
-			
+			mother = agents.get(1+i);
+
 			//grab their respective chromosomes
 			ArrayList<Boolean> father_chromes = father.getChrome();
 			ArrayList<Boolean> mother_chromes = mother.getChrome();
@@ -46,19 +48,27 @@ public class Evolution{
 			//grab the size of the chromosome
 			//TODO: Need to replace the constant 3 with a dynamic value
 			gene_count = father_chromes.size();
-			
+
+            rand = gen.nextInt(48);
 			ArrayList<Boolean> child = new ArrayList<Boolean>();
-			child.addAll(father_chromes.subList(0,gene_count/2));
-			child.addAll(mother_chromes.subList(gene_count/2,gene_count));
-			
+            child.addAll(father_chromes.subList(0, rand));
+			child.addAll(mother_chromes.subList(rand, gene_count));
+			/*child.addAll(father_chromes.subList(0,gene_count/4));
+			child.addAll(mother_chromes.subList(gene_count/4,gene_count/2));
+            child.addAll(father_chromes.subList(gene_count/2,
+                    (int)(gene_count*.75)));
+            child.addAll(mother_chromes.subList((int)(gene_count*.75),
+                    gene_count));
+			*/
+
 			//physically create two new agents, and imprint them with the new
 			//chromosomal sequences just generated
 			children.add(new Agent(child));
 			child = new ArrayList<Boolean>();
 			
 			//create a child with an opposite copy property of the above child
-			child.addAll(mother_chromes.subList(0, gene_count/2));
-			child.addAll(father_chromes.subList(gene_count/2, gene_count));
+			child.addAll(mother_chromes.subList(0, rand));
+			child.addAll(father_chromes.subList(rand, gene_count));
 			
 			//again, imprint the child with the new chromosomal sequence
 			children.add(new Agent(child));
@@ -71,7 +81,7 @@ public class Evolution{
 	public List<Agent> performMutation(List<Agent> agents){
 		
 		//vars
-		int max_mutations = 1, rand,
+		int max_mutations = 6, rand,
 				chrome_size = agents.get(0).getChrome().size();
 		
 		for(Agent a : agents){

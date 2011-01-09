@@ -14,19 +14,21 @@ public class Painter extends JPanel{
 	//instance vars
     private List<Integer> average_history = new ArrayList<Integer>();
 	private int generation_count;
-	private double max_y_val = 250000, max_y_real = 480.0;
+	private double max_y_val = 1000000, max_y_real = 480.0;
     private List<Species> species;
     private List<Color> s_colors = new ArrayList<Color>();
 
     public Painter(){
 
         //setup some basic colors for our species
-        s_colors.add(new Color(255, 0, 0));
-        s_colors.add(new Color(0, 255, 0));
-        s_colors.add(new Color(0, 0, 255));
-        s_colors.add(new Color(255, 255, 0));
-        s_colors.add(new Color(0, 255, 255));
-        s_colors.add(new Color(255, 0, 255));
+        s_colors.add(Color.red);
+        s_colors.add(Color.green);
+        s_colors.add(Color.blue);
+        s_colors.add(Color.black);
+        s_colors.add(Color.yellow);
+        s_colors.add(Color.magenta);
+        s_colors.add(Color.orange);
+        s_colors.add(Color.pink);
     }
 	
 	public void paint(Graphics g){
@@ -60,7 +62,7 @@ public class Painter extends JPanel{
             List<Generation> gens = h.getGenerations();
             for(int k = 0; k < gens.size(); ++k){
                 double avg = gens.get(k).getAverage();
-                g.fillOval(k, (int)((1-avg/max_y_val)*max_y_real+30), 4, 4);
+                g.fillOval(k, (int)((1-(avg/max_y_val))*max_y_real), 4, 4);
             }
         }
     }

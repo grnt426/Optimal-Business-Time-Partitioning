@@ -25,8 +25,8 @@ public class Model implements ActionListener{
     public Model(){
 
         //set up our default values
-        max_gen_count = 60;
-        max_agent_count = 50;
+        max_gen_count = 600;
+        max_agent_count = 100;
         max_day_count = 100;
         max_elite_percent = .05;
         max_parent_percent = .8;
@@ -58,6 +58,9 @@ public class Model implements ActionListener{
 
     public void setMaxAgentCount(int agent_count){
         max_agent_count = agent_count;
+        for(Species s : species){
+            s.setAgentCount(max_agent_count);
+        }
     }
 
     public int getDayCount(){
