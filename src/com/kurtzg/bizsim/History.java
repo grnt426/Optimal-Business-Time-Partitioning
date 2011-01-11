@@ -27,6 +27,8 @@ public class History {
     }
 
     public Generation getGeneration(int index){
+        if(generations.size()<=index || index < 0)
+            return null;
         return generations.get(index);
     }
 
@@ -42,6 +44,8 @@ public class History {
     }
 
     public Generation getLastGeneration(){
-        return generations.get(generations.size());
+        if(generations.isEmpty())
+            return null;
+        return generations.get(generations.size()-1);
     }
 }

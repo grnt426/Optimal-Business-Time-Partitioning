@@ -77,7 +77,7 @@ public class Species implements Runnable{
 
         public void replaceEnvironment(Environment e){
             this.e = e;
-    }
+        }
 
         /*
          * Populates the children array with agents of random creation
@@ -232,6 +232,13 @@ public class Species implements Runnable{
 
                 }
                 running = false;
+
+                //alert listeners that the species has finished processing
+                if(cur_gen == generations){
+                    listener.actionPerformed(new ActionEvent(this,
+                                ActionEvent.ACTION_PERFORMED,
+                                "generation_processing_done"));
+                }
             }
 		}
 

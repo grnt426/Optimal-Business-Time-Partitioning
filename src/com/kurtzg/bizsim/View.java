@@ -3,14 +3,11 @@ package com.kurtzg.bizsim;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
-public class View implements ActionListener, MouseListener{
+public class View implements ActionListener, MouseListener, MouseMotionListener{
 
     // global instance variables
     // global GUI controls
@@ -195,6 +192,8 @@ public class View implements ActionListener, MouseListener{
         // setup our graphics school
         paint.addMouseListener(this);
         gp.addMouseListener(this);
+        paint.addMouseMotionListener(this);
+        gp.addMouseMotionListener(this);
 
         // Create a Tabbed panel for the different graphs
         graphWindow = new JFrame();
@@ -254,8 +253,10 @@ public class View implements ActionListener, MouseListener{
                 Error err = (Error) src;
 
                 //update the error field
-                message_history.setText(message_history.getText() + "\n" +
-                        err.getMsg());
+               appendMessage(err.getMsg());
+            }
+            else if(msg.equals("generation_processing_done")){
+                appendMessage("A Species has Finished Processing");
             }
         }
 
@@ -332,32 +333,50 @@ public class View implements ActionListener, MouseListener{
             // grab the clicked generation and pass to the generational
             // painter, then change to that panel
             Generation gen = paint.getClickedGeneration(x, y);
-            gp.setGeneration(gen);
-            graphs.setSelectedIndex(2);
+
+            //ensure the user actually clicked somewhere with a generation!
+            if(gen != null){
+                gp.setGeneration(gen);
+                graphs.setSelectedIndex(2);
+            }
         }
 
         // if we got a click event from our Generational Painter class, then
         // we need to show the graph for a single agent
         else if(src == gp){
             Agent a = gp.getClickedAgent(x, y);
-            ap.setAgent(a);
-            graphs.setSelectedIndex(3);
+
+            //make sure the user clicked somewhere with an agent!
+            if(a != null){
+                ap.setAgent(a);
+                graphs.setSelectedIndex(3);
+            }
         }
     }
 
     public void mousePressed(MouseEvent e) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void mouseReleased(MouseEvent e) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void mouseEntered(MouseEvent e) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void mouseExited(MouseEvent e) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void mouseDragged(MouseEvent e) {
+    }
+
+    public void mouseMoved(MouseEvent e) {
+
+        //mouse event data dump
+        Object src = e.getSource();
+        int x = e.getX(), y = e.getY();
+
+        if(src == paint){
+            paint.setHoveringOver(x, y);
+        }
     }
 }

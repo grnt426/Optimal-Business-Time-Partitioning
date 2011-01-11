@@ -165,7 +165,7 @@ public class Model implements ActionListener{
     /*
      * Handles informing all listeners of a change in the model
      */
-    public void processEvent(ActionEvent e){
+    private void processEvent(ActionEvent e){
         for(ActionListener a : listeners){
             a.actionPerformed(e);
         }
@@ -206,7 +206,7 @@ public class Model implements ActionListener{
         running = true;
     }
 
-    public void replaceEnvironment(Environment e){
+    private void replaceEnvironment(Environment e){
 
         // TODO: this should pause the thread before replacing the environment
         // TODO: otherwise it may produce interesting results if it doesn't
@@ -225,24 +225,33 @@ public class Model implements ActionListener{
 
     public void actionPerformed(ActionEvent e) {
 
-        //vars
+        // vars
         Object src = e.getSource();
         String msg = e.getActionCommand();
 
         if(msg.equals("generation_processed")){
 
-            //alert the controller that another day has been processed
+            // alert the controller that another day has been processed
             processEvent(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
                     "generation_processed"));
+        }
+        else if(msg.equals("generation_processing_done")){
+
+            // alert the controller that a species finished processing
+            // completely
+            // TODO: much later, need some way of keeping a list of all species
+            // TODO: that finished processing
+            processEvent(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
+                    "generation_processing_done"));
         }
         else if(msg.equals("new_elite")){
 
             Species s = (Species) src;
 
-            //replace the previous species' elite with the new one
+            // replace the previous species' elite with the new one
             elites.set(species.indexOf(s), s.getCurrentElite());
 
-            //alert the controller
+            // alert the controller
             processEvent(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
                     "new_elite"));
         }

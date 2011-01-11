@@ -8,7 +8,8 @@ public class GenerationPainter extends JPanel{
     //instance vars
     private Generation generation;
     private double max_income, min_income;
-    private int agent_count, max_x = 600, max_y = 480;
+    private int agent_count, max_x = 600, max_y = 480, hover_x = -1,
+            hover_y = -1;
 
     public GenerationPainter(){
         generation = null;
@@ -57,6 +58,36 @@ public class GenerationPainter extends JPanel{
             //draw the actual dot
             g.fillOval(x, y, circumference, circumference);
         }
+
+        if(hover_x != -1){
+
+            // TODO: Use the hover_y value to give better accuracy for the
+            // TODO: agent
+            Agent agent = generation.getAgent(hover_x-1);
+
+            if(agent != null){
+
+                double avg = agent.getMoney();
+                //int y = max_y - (int)(a.getMoney() / max_income * max_y)-10;
+                g.setColor(Color.black);
+
+                // ->
+
+
+                // <-
+
+
+                // \/
+
+
+                // ^
+
+
+                // draw "targeting" box
+               // g.drawRect(hover_x-1, (int)((1-(avg/max_y_val))*max_y_real)-1,
+                        //4, 4);
+            }
+        }
     }
 
     public void setGeneration(Generation g){
@@ -65,16 +96,20 @@ public class GenerationPainter extends JPanel{
         max_income = (int)(g.getHighestIncome() * 1.2);
         min_income = (int)(g.getLowestIncome() * .8);
 
-
         //store everything else
         agent_count = g.getAgents().size();
         generation = g;
-
         repaint();
     }
 
     public Agent getClickedAgent(int x, int y){
         return generation.getAgent(10);
+    }
+
+    public void setHoveringOver(int x, int y){
+        hover_x = x;
+        hover_y = y;
+        repaint();
     }
 
     public Dimension getPreferredSize(){

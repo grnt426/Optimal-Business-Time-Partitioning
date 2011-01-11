@@ -31,11 +31,17 @@ public class Generation {
     }
 
     public Agent getAgent(int index){
+        if(agents.size()<=index || index<0)
+            return null;
         return agents.get(index);
     }
 
     public int getSpeciesId(){
         return species_id;
+    }
+
+    public int getID(){
+        return gen_id;
     }
 
     public int getHighestIncome(){
@@ -52,13 +58,10 @@ public class Generation {
         if(average == -1)
             computeAverage();
 
-        if(id == 3 && average == -1)
-            System.out.println("JKHSDJKFSD");
-
         return average;
     }
 
-    public void computeAverage(){
+    private void computeAverage(){
 
         //vars
         double average = 0.0;
