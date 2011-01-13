@@ -327,7 +327,7 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
         int x = e.getX(), y = e.getY();
 
         // if we got a click event from our paint class, we want a closer look
-        // at that generation
+        // at some point in the graph
         if(src == paint){
 
             // grab the clicked generation and pass to the generational

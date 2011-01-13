@@ -12,7 +12,9 @@ import java.util.List;
 public class Painter extends JPanel{
 
 	//instance vars
+
     private List<Species> species;
+    private CoordinateContainer coordinates;
     private List<Color> s_colors = new ArrayList<Color>();
     private int hover_x, hover_y, max_x = 600, max_y = 480, highest_money,
         lowest_money;
@@ -32,7 +34,10 @@ public class Painter extends JPanel{
         //setup defaults
         hover_x = -1;
         highest_money = 60000;
-        lowest_money = 0;
+        lowest_money = -1;
+
+        //initialize some clases
+        coordinates = new CoordinateContainer();
     }
 	
 	public void paint(Graphics g){
@@ -45,7 +50,7 @@ public class Painter extends JPanel{
         g.setColor(Color.gray);
         for(int i = 4; i > 0; --i){
             int y =  max_y - (max_y/4*i)+10;
-            g.drawString("$"+i*highest_money/4, 140, y);
+            g.drawString("$"+i*(highest_money)/4, 140, y);
             g.drawLine(0, y, max_x, y);
         }
 
@@ -59,6 +64,9 @@ public class Painter extends JPanel{
         if(species == null)
             return;
 
+        //clear the coordinate array for the next data
+        coordinates.clear();
+
         //draws all the generations based on income
         for(int i = 0; i < species.size(); ++i){
             g.setColor(s_colors.get(i));
@@ -67,41 +75,56 @@ public class Painter extends JPanel{
             List<Generation> gens = h.getGenerations();
             for(int k = 0; k < gens.size(); ++k){
                 double avg = gens.get(k).getAverage();
-                int y = max_y - (int)(avg / highest_money * max_y);
+                int y = max_y - (int)((avg) / highest_money * max_y);
                 g.fillOval(k, y, 3, 3);
+
+                //cache this data for later use
+                coordinates.addPoint(k, y, gens.get(k));
             }
         }
 
 
         //used for drawing the targeting box
         if(hover_x != -1){
-            Species s = species.get(0);
-            History h = s.getHistory();
 
-            // TODO: Use the hover_y value to give better accuracy for the
-            // TODO: agent
-            Generation gen = h.getGeneration(hover_x-1);
+            //find the closest point
+            Coordinate gen = coordinates.getClosestPointAt(hover_x, hover_y);
 
             if(gen != null){
 
-                double avg = gen.getAverage();
-                int y = max_y - (int)(avg / highest_money * max_y);
+                //vars
+                int y = gen.getY(), x = gen.getX();
+                double avg = ((Generation)gen.getData()).getAverage();
                 g.setColor(Color.black);
 
                 // ->
-                g.drawLine(0, y, hover_x-5, y);
+                g.drawLine(0, y+1, x-4, y+1);
 
                 // <-
-                g.drawLine(max_x, y, hover_x+5, y);
+                g.drawLine(max_x, y+1, x+7, y+1);
 
                 // \/
-                g.drawLine(hover_x, 0, hover_x, y-3);
+                g.drawLine(x+1, 0, x+1, y-3);
 
                 // ^
-                g.drawLine(hover_x, max_y, hover_x, y+4);
+                g.drawLine(x+1, max_y, x+1, y+6);
 
                 // draw "targeting" box
-                g.drawRect(hover_x-2, y-1, 5, 5);
+                g.drawRect(x-1, y-1, 5, 5);
+
+                // draw the hovering box to indicate income
+                // but first, we must determine where the box will be relative
+                // to the mouse based on overlapping with the edge of the window
+                int text_len = (avg+"$").length()*7;
+                x = x+10;
+                int total = x + text_len;
+                if(total > max_x)
+                    x -= text_len + 16;
+
+                g.setColor(Color.BLACK);
+                g.fillRect(x, y-13, text_len, 13);
+                g.setColor(Color.GREEN);
+                g.drawString("$" + avg, x, y-3);
             }
         }
     }
@@ -118,11 +141,10 @@ public class Painter extends JPanel{
             if(gen == null)
                 continue;
 
-
             double avg = gen.getAverage();
             if(avg > (highest_money*.9))
                 highest_money = (int)(avg*1.2);
-            if(avg < (lowest_money*.9))
+            if(avg < (lowest_money*.9) || lowest_money == -1)
                 lowest_money = (int)(avg*.8);
         }
 
@@ -131,11 +153,36 @@ public class Painter extends JPanel{
 
     public Generation getClickedGeneration(int x, int y){
 
+        //vars
+        Generation clicked = null;
+
+        //to get the avg based on the y-value given, simply reverse the
+        //function used to determine the average from a given known y
+        double diff = -1.0, desired_avg = (-y + max_y)/max_y * highest_money;
+
+        for(Species s : species){
+            History h = s.getHistory();
+            for(int i = 0; i < h.getGenerations().size(); ++i){
+
+                //ignore generations that are too far from our x
+                if(Math.abs(x-i) > 5)
+                    continue;
+
+                Generation g = h.getGeneration(i);
+
+                // we want the generation closest to the clicked/hover location
+                if(Math.abs(g.getAverage() - desired_avg) < diff || diff == -1)
+                    clicked = g;
+            }
+        }
+
+
         // we should only need the x-coordinate to determine where the agent is
         // in a single species generation
         // TODO: need to allow for selecting generations from an arbitrary
         // TODO: number of species
-        return species.get(0).getHistory().getGeneration(x);
+        //return species.get(0).getHistory().getGeneration(x);
+        return clicked;
     }
 
     public void setHoveringOver(int x, int y){
