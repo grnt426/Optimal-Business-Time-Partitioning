@@ -7,6 +7,18 @@ import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
+/*
+ * File:        View.java
+ *
+ * Author:      Grant Kurtz
+ *
+ * Description: Acts as a View and Controller by setting up and handling all
+ *              the necessary user actions in the same class.  Creates two
+ *              windows, the first is the graphing window used for viewing the
+ *              output of the algorithm, and the second is used for controlling
+ *              the simulation and environment values.  The second window also
+ *              contains Elite agent information and a history of events.
+ */
 public class View implements ActionListener, MouseListener, MouseMotionListener{
 
     // global instance variables
@@ -31,24 +43,39 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
     JTextArea message_history = new JTextArea(11, 29);
     JScrollPane message_history_scroll = new JScrollPane(message_history);
     JTabbedPane graphs = new JTabbedPane();
+    private JFrame graphWindow;
 
-    //initialize paint classes
+    // initialize paint classes
     Painter paint = new Painter();
     ElitePainter ep = new ElitePainter();
     GenerationPainter gp = new GenerationPainter();
     AgentPainter ap = new AgentPainter();
 
+    // Our model class which contains all the classes to run and report
+    // updates to our class
     private Model model;
-    private JFrame graphWindow;
 
+
+    /*
+     * Default Constructor Sets up both windows and populates with all the
+     * necessary GUI components.  Handles assigning the ActionListeners et al,
+     *  and updating various text-fields with the defaults as provided by the
+     * model.
+     *
+     * Param:   m           the model that will be reporting all updates to the
+     *                      simulation and species processing.
+     *
+     * Param:   numThreads  The number of individual threads (and separate
+     *                      species) to run on this machine simultaneously
+     */
     public View(Model m, int numThreads){
 
         model = m;
 
-        //hand ourselves over to the model to listen for events
+        // hand ourselves over to the model to listen for events
         model.addListeners(this);
 
-        //grab the default Environment used by the model
+        // grab the default Environment used by the model
         Environment e = model.getEnvironment();
 
          // configure our main window which will contain all the other elements
@@ -58,7 +85,7 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
         control_window.setSize(new Dimension(800, 480));
         control_window.setLayout(new BorderLayout());
 
-        //species List
+        // species List
         JPanel species_control = new JPanel();
         JLabel species_list_l = new JLabel("Species Running");
         DefaultListModel species_list = new DefaultListModel();
@@ -98,7 +125,7 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
         environment_controls.add(new JLabel("Low Sale:"));
         environment_controls.add(low_sale);
 
-        //setup the default values for these text fields
+        // setup the default values for these text fields
         high_rate.setText(e.getHQRate()+"");
         high_sale.setText(e.getHQSale()+"");
         med_rate.setText(e.getMQRate()+"");
@@ -124,7 +151,7 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
         simulation_controls.add(new JLabel("Day Count"));
         simulation_controls.add(day_count);
 
-        //setup the default values for these text fields
+        // setup the default values for these text fields
         agent_count.setText(model.getMaxAgentCount() + "");
         generation_count.setText(model.getMaxGenCount()+"");
         elite_percent.setText(model.getElitePercent()+"");
@@ -189,7 +216,8 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
         control_window.setLocation(620, 0);
         control_window.setVisible(true);
 
-        // setup our graphics school
+        // tell all our paint classes that we want to know about mouse events
+        // from the user
         paint.addMouseListener(this);
         gp.addMouseListener(this);
         paint.addMouseMotionListener(this);
@@ -211,39 +239,53 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
         graphWindow.pack();
         graphWindow.setVisible(true);
 
-        //Now, create our first species
+        // Now, lets get this algorithm started!
         model.creteNewSpecies(numThreads);
     }
 
+    /*
+     * Adds a provided message to the history field by providing the previous
+     * text, appending a new-line, and then adding our message
+     *
+     * Param:   msg         The string to be appended to the message window
+     *                      with a preceding new-line
+     */
     public void appendMessage(String msg){
         message_history.setText(message_history.getText() + "\n" + msg);
     }
 
+    /*
+     * Handles processing of all user-input as well as handling delegating
+     * the information from an updated model to the respective paint classes.
+     *
+     * Param:   e               the object that alerted our class of a new
+     *                          event
+     */
     public void actionPerformed(ActionEvent e) {
 
-        //vars
+        // vars
         Object src = e.getSource();
         String msg = e.getActionCommand();
 
-        //we have received an event from our model
+        // we have received an event from our model
         if(src.equals(model)){
 
             if(msg.equals("generation_processed")){
 
-               //need to update the generation graph
+               // need to update the generation graph
                paint.setHistory(model.getSpeciesData());
             }
             else if(msg.equals("new_elite")){
 
                 List<Agent> elites = model.getElites();
-                Agent top_elite = elites.get(0);
+                Agent top_elite = elites.get(0).clone();
 
-                //update the paint class
+                // update the paint class
                 ep.setElites(elites);
 
                 if(top_elite != null){
 
-                    //update the GUI window
+                    // update the GUI window
                     cur_elite_total.setText("$" + top_elite.getMoney());
                     cur_elite_genome.setText(top_elite.toString());
                 }
@@ -252,7 +294,7 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
 
                 Error err = (Error) src;
 
-                //update the error field
+                // update the error field
                appendMessage(err.getMsg());
             }
             else if(msg.equals("generation_processing_done")){
@@ -260,58 +302,74 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
             }
         }
 
-        //event received from our GUI panel
+        // event received from our GUI panel
         else{
 
+            // TODO: should really disable the GUI buttons until the model
+            // TODO: reports that all species have halted processing
+            // TODO: successfully
             if(src == start_stop){
                 appendMessage((model.toggleRunningState() ? "Running":"Stopping")
                         + " Simulator...");
             }
+
+            // TODO: again, should freeze all GUI buttons until the model
+            // TODO: reports it has reset all species
             else if(src == reset){
 
                 model.resetSimulation();
 
-                //clear the Elite Agent data
+                // clear the Elite Agent data
                 cur_elite_genome.setText("");
                 cur_elite_total.setText("");
 
                 appendMessage("Simulation Reset...\nSimulation Running...");
             }
+
+            // TODO: same as above, wait until previous action done
             else if(src == reconfigure){
 
-                //create a new environment with the new parameters
+                // create a new environment with the new parameters
                 Environment environment = new Environment();
 
-                //vars
+                // vars
                 int agentCount = 0, dayCount = 0, genCount = 0;
                 double elitePercent = 0, parentPercent = 0;
 
                 try{
 
-                    //override existing values
-                    environment.setHQSale(Integer.parseInt(high_sale.getText()));
-                    environment.setHQRate(Integer.parseInt(high_rate.getText()));
-                    environment.setMQRate(Integer.parseInt(med_rate.getText()));
-                    environment.setMQSale(Integer.parseInt(med_sale.getText()));
-                    environment.setLQRate(Integer.parseInt(low_rate.getText()));
-                    environment.setLQSale(Integer.parseInt(low_sale.getText()));
+                    // override existing values
+                    environment.setHQSale(Integer.parseInt(
+                            high_sale.getText()));
+                    environment.setHQRate(Integer.parseInt(
+                            high_rate.getText()));
+                    environment.setMQRate(Integer.parseInt(
+                            med_rate.getText()));
+                    environment.setMQSale(Integer.parseInt(
+                            med_sale.getText()));
+                    environment.setLQRate(Integer.parseInt(
+                            low_rate.getText()));
+                    environment.setLQSale(Integer.parseInt(
+                            low_sale.getText()));
                     environment.setIncomeRatioThreshold(Double.parseDouble(
                             agent_performance.getText())
                     );
 
-                    //grab the rest of the values interdependent of the environment
+                    // grab the rest of the values interdependent of the
+                    // environment
                     agentCount = Integer.parseInt(agent_count.getText());
                     dayCount = Integer.parseInt(day_count.getText());
                     elitePercent = Double.parseDouble(elite_percent.getText());
                     genCount = Integer.parseInt(generation_count.getText());
-                    parentPercent = Double.parseDouble(parent_percent.getText());
+                    parentPercent = Double.parseDouble(
+                            parent_percent.getText());
                 }
                 catch(NumberFormatException nfe){
                     appendMessage("Error: Use only numbers!");
                     return;
                 }
 
-                //make the call to tell the model to update everything
+                // make the call to tell the model to update everything
                 model.reconfigureState(environment, agentCount, dayCount,
                         genCount, elitePercent, parentPercent);
 
@@ -320,6 +378,11 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
         }
     }
 
+    /*
+     * Handles user actions requesting more information on clicked data-points.
+     *
+     * Param:   e               the object that is alerting us to a new event
+     */
     public void mouseClicked(MouseEvent e) {
 
         // dump event data
@@ -334,19 +397,19 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
             // painter, then change to that panel
             Generation gen = paint.getClickedGeneration(x, y);
 
-            //ensure the user actually clicked somewhere with a generation!
+            // ensure the user actually clicked somewhere with a generation!
             if(gen != null){
                 gp.setGeneration(gen);
                 graphs.setSelectedIndex(2);
             }
         }
 
-        // if we got a click event from our Generational Painter class, then
+        // if we got a click event from our GenerationalPainter class, then
         // we need to show the graph for a single agent
         else if(src == gp){
             Agent a = gp.getClickedAgent(x, y);
 
-            //make sure the user clicked somewhere with an agent!
+            // make sure the user clicked somewhere with an agent!
             if(a != null){
                 ap.setAgent(a);
                 graphs.setSelectedIndex(3);
@@ -369,9 +432,13 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
     public void mouseDragged(MouseEvent e) {
     }
 
+    /*
+     * Used to update currently focused graphs of the new location  to draw
+     * a targeting reticule.
+     */
     public void mouseMoved(MouseEvent e) {
 
-        //mouse event data dump
+        // mouse event data dump
         Object src = e.getSource();
         int x = e.getX(), y = e.getY();
 
