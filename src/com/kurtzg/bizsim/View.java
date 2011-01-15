@@ -378,5 +378,8 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
         if(src == paint){
             paint.setHoveringOver(x, y);
         }
+        else if(src == gp){
+            gp.setHoveringOver(x, y);
+        }
     }
 }

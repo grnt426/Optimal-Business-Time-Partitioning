@@ -11,8 +11,7 @@ import java.util.List;
 
 public class Painter extends JPanel{
 
-	//instance vars
-
+	// instance vars
     private List<Species> species;
     private CoordinateContainer coordinates;
     private List<Color> s_colors = new ArrayList<Color>();
@@ -23,7 +22,7 @@ public class Painter extends JPanel{
 
     public Painter(){
 
-        //setup some basic colors for our species
+        // setup some basic colors for our species
         s_colors.add(Color.red);
         s_colors.add(Color.green);
         s_colors.add(Color.blue);
@@ -33,12 +32,12 @@ public class Painter extends JPanel{
         s_colors.add(Color.orange);
         s_colors.add(Color.pink);
 
-        //setup defaults
+        // setup defaults
         hover_x = -1;
         highest_money = 60000;
         lowest_money = -1;
 
-        //initialize some clases
+        // initialize some clases
         coordinates = new CoordinateContainer();
     }
 
@@ -48,7 +47,7 @@ public class Painter extends JPanel{
 
         setBackground(Color.white);
 
-        //draw the income line separators
+        // draw the income line separators
         g.setColor(Color.gray);
         for(int i = 4; i > 0; --i){
             int y =  max_y - (max_y/4*i)+10;
@@ -56,7 +55,7 @@ public class Painter extends JPanel{
             g.drawLine(0, y, max_x, y);
         }
 
-        //draw the generational count separators
+        // draw the generational count separators
         for(int i = 1; i < 6; ++i){
             int x = i*100;
             g.drawString("Gen: "+(i*100), x+1, max_y-2);
@@ -66,10 +65,12 @@ public class Painter extends JPanel{
         if(species == null)
             return;
 
-        //clear the coordinate array for the next data
+        // clear the coordinate array for the next data
+        // TODO: should probably have some way of caching the data instead of
+        // blowing it away each time...could be very difficult/CPU intensive
         coordinates.clear();
 
-        //draws all the generations based on income
+        // draws all the generations based on income
         for(int i = 0; i < species.size(); ++i){
             g.setColor(s_colors.get(i));
             Species s = species.get(i);
@@ -80,16 +81,16 @@ public class Painter extends JPanel{
                 int y = max_y - (int)((avg) / highest_money * max_y);
                 g.fillOval(k, y, 3, 3);
 
-                //cache this data for later use
+                // cache this data for later use
                 coordinates.addPoint(k, y, gens.get(k));
             }
         }
 
 
-        //used for drawing the targeting box
+        // used for drawing the targeting box
         if(hover_x != -1){
 
-            //find the closest point
+            // find the closest point
             Coordinate gen = last_hovered_gen;
             if(changed){
                 gen = coordinates.getClosestPointAt(hover_x, hover_y);
@@ -98,7 +99,7 @@ public class Painter extends JPanel{
 
             if(gen != null){
 
-                //vars
+                // vars
                 int y = gen.getY(), x = gen.getX();
                 double avg = ((Generation)gen.getData()).getAverage();
                 g.setColor(Color.black);
@@ -138,7 +139,7 @@ public class Painter extends JPanel{
     public synchronized void setHistory(List<Species> s){
         species = s;
 
-        //determine the boundary for highest money
+        // determine the boundary for highest money
         for(Species spec : species){
             Generation gen = spec.getHistory().getLastGeneration();
 
@@ -148,8 +149,14 @@ public class Painter extends JPanel{
                 continue;
 
             double avg = gen.getAverage();
+
+            // only increase the y-axis once a generation reaches 108% of the
+            // previously highest generation average
             if(avg > (highest_money*.9))
                 highest_money = (int)(avg*1.2);
+
+            // same as above, except for the lower bound must fall below 72%
+            // of the previously lowest generation
             if(avg < (lowest_money*.9) || lowest_money == -1)
                 lowest_money = (int)(avg*.8);
         }
@@ -168,8 +175,14 @@ public class Painter extends JPanel{
     }
 
     public void setHoveringOver(int x, int y){
+
+        // in case we need to repaint, but haven't changed
         if(hover_x != x || hover_y != y)
             changed = true;
+        else
+            changed = false;
+
+        // store for use, then call ourselves to update the graph
         hover_x = x;
         hover_y = y;
         repaint();

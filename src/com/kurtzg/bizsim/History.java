@@ -15,7 +15,16 @@ public class History {
     }
 
     public void addGeneration(List<Agent> agents){
-        generations.add(new Generation(agents, species_id));
+
+        // vars
+        List<Agent> copied_agents = new ArrayList<Agent>();
+
+        // create a copy of the given list of agents for storage
+        for(Agent a : agents)
+            copied_agents.add(a.clone());
+
+        // finally, store the copied agents
+        generations.add(new Generation(copied_agents, species_id));
     }
 
     public List<Generation> getGenerations(){

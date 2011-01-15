@@ -13,11 +13,12 @@ package com.kurtzg.bizsim;
 * TODO:         actions
 */
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class Agent implements Comparable<Agent>{
+public class Agent implements Comparable<Agent>, Cloneable{
 
 	//instance variables
 	private ArrayList<Boolean> chromosome;
@@ -42,6 +43,30 @@ public class Agent implements Comparable<Agent>{
 		money = 50000;
         max_income_history = 5;
 	}
+
+    // Copy-Constructor
+    public Agent(Agent agent){
+
+        // copy all the arrays first
+        chromosome = new ArrayList<Boolean>(agent.getChrome());
+        income_history = new ArrayList<Integer>(agent.income_history);
+
+        // copy over the primitives next
+        name = agent.name;
+        currently_storing = agent.currently_storing;
+        ineffective = agent.ineffective;
+        money = agent.money;
+        rms = agent.rms;
+        lqfg = agent.lqfg;
+        mqfg = agent.mqfg;
+        hqfg = agent.hqfg;
+        max_income_history = agent.max_income_history;
+
+    }
+
+    public Agent clone(){
+        return new Agent(this);
+    }
 
     public void setName(String n){
         name = n;
