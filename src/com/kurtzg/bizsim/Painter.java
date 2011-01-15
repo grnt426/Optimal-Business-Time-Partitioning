@@ -18,6 +18,8 @@ public class Painter extends JPanel{
     private List<Color> s_colors = new ArrayList<Color>();
     private int hover_x, hover_y, max_x = 600, max_y = 480, highest_money,
         lowest_money;
+    private Coordinate last_hovered_gen;
+    private boolean changed = false;
 
     public Painter(){
 
@@ -39,7 +41,7 @@ public class Painter extends JPanel{
         //initialize some clases
         coordinates = new CoordinateContainer();
     }
-	
+
 	public void paint(Graphics g){
 
         super.paintComponent(g);
@@ -88,7 +90,11 @@ public class Painter extends JPanel{
         if(hover_x != -1){
 
             //find the closest point
-            Coordinate gen = coordinates.getClosestPointAt(hover_x, hover_y);
+            Coordinate gen = last_hovered_gen;
+            if(changed){
+                gen = coordinates.getClosestPointAt(hover_x, hover_y);
+                last_hovered_gen = gen;
+            }
 
             if(gen != null){
 
@@ -156,41 +162,19 @@ public class Painter extends JPanel{
         //vars
         Generation clicked = null;
 
-        //to get the avg based on the y-value given, simply reverse the
-        //function used to determine the average from a given known y
-        double diff = -1.0, desired_avg = (-y + max_y)/max_y * highest_money;
+        clicked = (Generation) coordinates.getClosestDataAt(x, y);
 
-        for(Species s : species){
-            History h = s.getHistory();
-            for(int i = 0; i < h.getGenerations().size(); ++i){
-
-                //ignore generations that are too far from our x
-                if(Math.abs(x-i) > 5)
-                    continue;
-
-                Generation g = h.getGeneration(i);
-
-                // we want the generation closest to the clicked/hover location
-                if(Math.abs(g.getAverage() - desired_avg) < diff || diff == -1)
-                    clicked = g;
-            }
-        }
-
-
-        // we should only need the x-coordinate to determine where the agent is
-        // in a single species generation
-        // TODO: need to allow for selecting generations from an arbitrary
-        // TODO: number of species
-        //return species.get(0).getHistory().getGeneration(x);
         return clicked;
     }
 
     public void setHoveringOver(int x, int y){
+        if(hover_x != x || hover_y != y)
+            changed = true;
         hover_x = x;
         hover_y = y;
         repaint();
     }
-	
+
 	public Dimension getPreferredSize(){
 		return new Dimension(max_x+1, max_y+1);
 	}
