@@ -1,6 +1,7 @@
 package com.kurtzg.bizsim;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,6 +26,10 @@ public class CoordinateContainer {
 
     public Coordinate getPointAt(int x, int y){
         return coordinates.get(x+""+y);
+    }
+
+    public Collection<Coordinate> getAllCoordinates(){
+        return coordinates.values();
     }
 
     public Object getDataAt(int x, int y){

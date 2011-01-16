@@ -47,6 +47,21 @@ public class Environment{
         income_ratio_threshold = 1.2;
 	}
 
+    /*
+     * Copy-Constructor
+     */
+    public Environment(Environment e){
+        this();
+        RM_COST = e.RM_COST;
+        LQ_RATE = e.LQ_RATE;
+        MQ_RATE = e.MQ_RATE;
+        HQ_RATE = e.HQ_RATE;
+        LQ_SALE = e.LQ_SALE;
+        MQ_SALE = e.MQ_SALE;
+        HQ_SALE = e.HQ_SALE;
+        income_ratio_threshold = e.income_ratio_threshold;
+    }
+
 	public void addAgent(Agent a){
 		agents.add(a);
 	}
@@ -60,7 +75,8 @@ public class Environment{
      * another generation can be processed
      */
 	public void purgeAgents(){
-		agents.clear();
+        if(agents != null)
+		    agents.clear();
         current_day = 0;
 	}
 

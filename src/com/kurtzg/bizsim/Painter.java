@@ -19,6 +19,7 @@ public class Painter extends JPanel{
         lowest_money;
     private Coordinate last_hovered_gen;
     private boolean changed = false;
+    private Dimension size;
 
     public Painter(){
 
@@ -36,6 +37,7 @@ public class Painter extends JPanel{
         hover_x = -1;
         highest_money = 60000;
         lowest_money = -1;
+        size = new Dimension(max_x, max_y);
 
         // initialize some clases
         coordinates = new CoordinateContainer();
@@ -49,16 +51,29 @@ public class Painter extends JPanel{
 
         // draw the income line separators
         g.setColor(Color.gray);
-        for(int i = 4; i > 0; --i){
-            int y =  max_y - (max_y/4*i)+10;
-            g.drawString("$"+i*(highest_money)/4, 140, y);
-            g.drawLine(0, y, max_x, y);
+        CoordinateContainer income_seps = new CoordinateContainer();
+        for(int i = 4; i >= 0; --i){
+            int y =  max_y - (max_y/4*i);
+            String money = "$"+i*(highest_money)/4;
+            if(i != 0){
+                g.drawString(money, 5, y+15);
+                income_seps.addPoint(5, y+15, money);
+            }
+            g.drawLine(0, y, getSize().width, y);
         }
 
         // draw the generational count separators
-        for(int i = 1; i < 6; ++i){
+        for(int i = 0; i < this.getSize().width/100+1; ++i){
             int x = i*100;
-            g.drawString("Gen: "+(i*100), x+1, max_y-2);
+
+            if(i!=0)
+                g.drawString("Gen: "+(i*100), x+1, max_y-2);
+
+            // redraw the income separators
+            if(i % 5 == 0 && i != 0){
+                for(Coordinate c : income_seps.getAllCoordinates())
+                    g.drawString((String)c.getData(), c.getX()+(i*100), c.getY());
+            }
             g.drawLine(x, 0, x, max_y);
         }
 
@@ -76,6 +91,11 @@ public class Painter extends JPanel{
             Species s = species.get(i);
             History h = s.getHistory();
             List<Generation> gens = h.getGenerations();
+
+            // make sure our window has enough size for the whole history
+            if(size.getWidth() < gens.size())
+                size.setSize(gens.size(), size.getHeight());
+
             for(int k = 0; k < gens.size(); ++k){
                 double avg = gens.get(k).getAverage();
                 int y = max_y - (int)((avg) / highest_money * max_y);
@@ -108,7 +128,7 @@ public class Painter extends JPanel{
                 g.drawLine(0, y+1, x-4, y+1);
 
                 // <-
-                g.drawLine(max_x, y+1, x+7, y+1);
+                g.drawLine(getSize().width, y+1, x+7, y+1);
 
                 // \/
                 g.drawLine(x+1, 0, x+1, y-3);
@@ -125,7 +145,7 @@ public class Painter extends JPanel{
                 int text_len = (avg+"$").length()*7;
                 x = x+10;
                 int total = x + text_len;
-                if(total > max_x)
+                if(total > getSize().width)
                     x -= text_len + 16;
 
                 g.setColor(Color.BLACK);
@@ -189,7 +209,7 @@ public class Painter extends JPanel{
     }
 
 	public Dimension getPreferredSize(){
-		return new Dimension(max_x+1, max_y+1);
-	}
+        return size;
+    }
 
 }

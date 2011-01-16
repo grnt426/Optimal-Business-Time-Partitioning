@@ -3,20 +3,17 @@ package com.kurtzg.bizsim;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Model implements ActionListener{
 
     //instance variables
     private List<ActionListener> listeners = new ArrayList<ActionListener>();
     private List<Species> species = new ArrayList<Species>();
-    private List<Agent> elites = new ArrayList<Agent>();
-    private int max_gen_count, max_agent_count, max_day_count;
+    private Vector<Agent> elites = new Vector<Agent>();
+    private int max_gen_count, max_agent_count, max_day_count, total_running;
     private double max_elite_percent, max_parent_percent;
-    private boolean running;
+    private boolean running, copyingElites;
     private Environment environment;
 
     /*
@@ -24,18 +21,20 @@ public class Model implements ActionListener{
      */
     public Model(){
 
-        //set up our default values
-        max_gen_count = 600;
+        // set up our default values
+        max_gen_count = 100;
         max_agent_count = 100;
         max_day_count = 100;
         max_elite_percent = .25;
         max_parent_percent = .7;
+        total_running = 0;
 
-        //initialize some classes
+        // initialize some classes
         environment = new Environment();
 
-        //global state values
+        // global state values
         running = true;
+        copyingElites = false;
     }
 
     public int getMaxGenCount(){
@@ -99,16 +98,26 @@ public class Model implements ActionListener{
     }
 
     public List<Agent> getElites(){
+        copyingElites = true;
         return elites;
     }
 
-    public void reconfigureState(Environment e, int agent_count, int day_count,
+    public void donCopyingElites(){
+        copyingElites = false;
+        synchronized (this){
+            notifyAll();
+        }
+    }
+
+    public boolean reconfigureState(Environment e, int agent_count, int day_count,
                                  int gen_count, double elite_percent,
                                  double parent_percent){
 
         //for now, don't allow modification unless we aren't running
-        if(running)
-            return;
+        if(running){
+            processError("Must Pause Simulation Before Reconfiguring!");
+            return false;
+        }
 
         //override old values
         replaceEnvironment(e);
@@ -117,6 +126,7 @@ public class Model implements ActionListener{
         setMaxAgentCount(agent_count);
         setMaxDayCount(day_count);
         setMaxGenCount(gen_count);
+        return true;
     }
 
 
@@ -125,34 +135,49 @@ public class Model implements ActionListener{
      */
     public void creteNewSpecies(int num){
 
-        //vars
+        // vars
         Environment e;//TODO: this should copy the current environment
 
-        //create a new thread, environment, etc for each new species
+        // create a new thread, environment, etc for each new species
         for(int i = 0; i < num; ++i){
             e = new Environment();
             Species s = new Species(max_agent_count, max_gen_count,
                     species.size(), e, this);
             s.fillWithAgents();
 
-            //setup our simulation constraints
+            // setup our simulation constraints
             s.setDayCount(max_day_count);
             s.setElitePercent(max_elite_percent);
             s.setGenerationCount(max_gen_count);
             s.setParentPercent(max_parent_percent);
             s.setAgentCount(max_agent_count);
 
-            //create the thread and run
+            incrementRunning();
+
+            // create the thread and run
             Thread t = new Thread(s);
             t.setPriority(8);
             t.start();
-
             species.add(s);
         }
 
-        //fill the elite class
+        // fill the elite class
         while(elites.size() < species.size())
                     elites.add(null);
+    }
+
+    public synchronized void incrementRunning(){
+        total_running++;
+    }
+
+    public synchronized void decrementRunning(){
+        total_running--;
+        checkStillRunning();
+    }
+
+    public void checkStillRunning(){
+        if(total_running == 0)
+            running = false;
     }
 
     /*
@@ -177,7 +202,7 @@ public class Model implements ActionListener{
 
     public synchronized boolean toggleRunningState(){
 
-        //toggle all species
+        // toggle all species
         for(Species s : species){
             if(s.toggleRunning()){
                 synchronized (s) {
@@ -191,11 +216,13 @@ public class Model implements ActionListener{
 
     public synchronized void resetSimulation(){
 
-        //don't reset an already running simulation
-        if(running)
-           processError("Must Pause Simulation Before Running!");
+        // don't reset an already running simulation
+        if(running){
+           processError("Must Pause Simulation Before Resetting!");
+           return;
+        }
 
-        //reset all the species
+        // reset all the species
         for(Species s : species){
             s.reset();
             synchronized (s){
@@ -204,6 +231,7 @@ public class Model implements ActionListener{
         }
 
         running = true;
+        total_running = species.size();
     }
 
     private void replaceEnvironment(Environment e){
@@ -211,10 +239,10 @@ public class Model implements ActionListener{
         // TODO: this should pause the thread before replacing the environment
         // TODO: otherwise it may produce interesting results if it doesn't
         for(Species s : species){
-            s.replaceEnvironment(e);
+            s.replaceEnvironment(new Environment(e));
         }
 
-        //store for later
+        // store for later
         environment = e;
     }
 
@@ -241,10 +269,22 @@ public class Model implements ActionListener{
             // completely
             // TODO: much later, need some way of keeping a list of all species
             // TODO: that finished processing
+            decrementRunning();
             processEvent(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
                     "generation_processing_done"));
         }
         else if(msg.equals("new_elite")){
+
+            synchronized (this){
+                try{
+                    while(copyingElites){
+                        wait();
+                    }
+                }
+                catch(InterruptedException ie){
+                    
+                }
+            }
 
             Species s = (Species) src;
 

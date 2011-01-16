@@ -43,10 +43,11 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
     JTextArea message_history = new JTextArea(11, 29);
     JScrollPane message_history_scroll = new JScrollPane(message_history);
     JTabbedPane graphs = new JTabbedPane();
-    private JFrame graphWindow;
+    JFrame graphWindow;
 
     // initialize paint classes
     Painter paint = new Painter();
+    JScrollPane graph_history = new JScrollPane(paint);
     ElitePainter ep = new ElitePainter();
     GenerationPainter gp = new GenerationPainter();
     AgentPainter ap = new AgentPainter();
@@ -225,7 +226,7 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
 
         // Create a Tabbed panel for the different graphs
         graphWindow = new JFrame();
-        graphs.addTab("Species Average", null, paint, "Graphical " +
+        graphs.addTab("Species Average", null, graph_history, "Graphical " +
                 "Representation of All Species' Average Performance");
         graphs.addTab("Elite Performance", null, ep,
                 "A 100-day Graph of the Elite Agent's Business Model");
@@ -277,28 +278,40 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
             }
             else if(msg.equals("new_elite")){
 
-                List<Agent> elites = model.getElites();
-                Agent top_elite = elites.get(0).clone();
+                // NOTE: THE BELOW IS HIGHLY UNSTABLE WITH MULTIPLE THREADS
+
+                // vars
+                ArrayList<Agent> elites = new ArrayList(model.getElites());
 
                 // update the paint class
                 ep.setElites(elites);
 
-                if(top_elite != null){
+                if(elites != null && elites.size() != 0){
 
-                    // update the GUI window
-                    cur_elite_total.setText("$" + top_elite.getMoney());
-                    cur_elite_genome.setText(top_elite.toString());
+                    Agent top_elite = new Agent(elites.get(0));
+
+                    if(top_elite != null){
+
+                        // update the GUI window
+                        cur_elite_total.setText("$" + top_elite.getMoney());
+                        cur_elite_genome.setText(top_elite.toString());
+                    }
                 }
-            }
-            else if(msg.equals("Error")){
 
-                Error err = (Error) src;
-
-                // update the error field
-               appendMessage(err.getMsg());
+                model.donCopyingElites();
             }
             else if(msg.equals("generation_processing_done")){
                 appendMessage("A Species has Finished Processing");
+            }
+        }
+        else if(src instanceof Error){
+
+            Error err = (Error) src;
+
+            if(msg.equals("Error")){
+
+                // update the error field
+               appendMessage(err.getMsg());
             }
         }
 
@@ -370,10 +383,10 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
                 }
 
                 // make the call to tell the model to update everything
-                model.reconfigureState(environment, agentCount, dayCount,
-                        genCount, elitePercent, parentPercent);
-
-                appendMessage("Species Reconfigured...");
+                if(model.reconfigureState(environment, agentCount, dayCount,
+                        genCount, elitePercent, parentPercent)){
+                    appendMessage("Species Reconfigured...");
+                }
             }
         }
     }
