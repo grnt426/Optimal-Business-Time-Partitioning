@@ -1,5 +1,11 @@
-package com.kurtzg.bizsim; /**
-* File:			com.kurtzg.bizsim.Environment.java
+package com.kurtzg.bizsim;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+* File:			Environment.java
 *
 * Author:		Grant Kurtz
 *
@@ -7,14 +13,9 @@ package com.kurtzg.bizsim; /**
 *				participate in.  This class is also able to simulate a business
 *				day given a list of agents.
 */
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 public class Environment{
 
-	//instance variables
+	// instance variables
 	private int RM_COST, LQ_RATE, MQ_RATE, HQ_RATE, LQ_SALE, MQ_SALE, HQ_SALE,
 				MAX_RMS_PER_AC, MAX_LQ_PER_AC, MAX_MQ_PER_AC, MAX_HQ_PER_AC,
                 MAX_LQSELL, MAX_MQSELL, MAX_HQSELL;
@@ -24,7 +25,6 @@ public class Environment{
 	
 	/*
 	* Initializes with hard-coded defaults
-	*
 	*/
 	public Environment(){
 		agents = new ArrayList<Agent>();
@@ -47,29 +47,23 @@ public class Environment{
         income_ratio_threshold = 1.2;
 	}
 
-	/*
-	*
-	*/
 	public void addAgent(Agent a){
 		agents.add(a);
 	}
-	
-	/*
-	* 
-	*/
+
 	public void addAgents(List<Agent> a){
 		agents.addAll(a);
 	}
-	
+
+    /*
+     * Clears the environment of agents and resets the environment so that
+     * another generation can be processed
+     */
 	public void purgeAgents(){
 		agents.clear();
         current_day = 0;
 	}
 
-    /*
-    * Look out below, giant list of get/set variables!
-    *
-     */
     public void setHQRate(int rate){
         this.HQ_RATE = rate;
     }
@@ -132,19 +126,25 @@ public class Environment{
 	* RMs & FGs once the day is finished processed.
 	*/
 	public void simulateDay(){
+
+        // loop through all given agents
 		for(Agent agent : agents){
+
+            // grab the agent's actions
 			ArrayList<Boolean> actions;
 			actions = agent.getChrome();
 			int money, rms, lqfg, mqfg, hqfg;
 			int temp_rms, temp_fgs, temp_sale;
 
-			//process all the actions for this agent
+			// process all the actions for this agent
 			for(int i = 0; i<actions.size();i=i+3){
+
+                // break apart the chromosome into 3-bit sized genes
 				String action = actions.get(i) ? "1":"0";
 				action += actions.get(i+1) ? "1" : "0";
 				action += actions.get(i+2) ? "1" : "0";
 
-				//Search for Raw Materials
+				// Search for Raw Materials
 				if(action.equals("000")){
 					money = agent.getMoney();
 					temp_rms = money/RM_COST;
@@ -156,7 +156,8 @@ public class Environment{
 					agent.setCurrentlyStoring(false);
 				}
 				
-				//Risky search for Raw Materials
+				// Risky search for Raw Materials
+                // TODO: NOT YET IMPLEMENTED, COPIES THE ABOVE BLOCK
 				else if(action.equals("001")){
 					money = agent.getMoney();
 					temp_rms = money/RM_COST;
@@ -168,7 +169,7 @@ public class Environment{
 					agent.setCurrentlyStoring(false);
 				}
 				
-				//Produce Low-Quality Finished Goods
+				// Produce Low-Quality Finished Goods
 				else if(action.equals("010")){
 					temp_rms = agent.getRawMaterials();
 					temp_fgs = temp_rms/LQ_RATE;
@@ -180,7 +181,7 @@ public class Environment{
 					agent.setCurrentlyStoring(false);
 				}
 				
-				//Produce Medium-Quality Finished Goods
+				// Produce Medium-Quality Finished Goods
 				else if(action.equals("011")){
 					temp_rms = agent.getRawMaterials();
 					temp_fgs = temp_rms/MQ_RATE;
@@ -192,7 +193,7 @@ public class Environment{
 					agent.setCurrentlyStoring(false);
 				}
 				
-				//Produce High-Quality Finished Goods
+				// Produce High-Quality Finished Goods
 				else if(action.equals("100")){
 					temp_rms = agent.getRawMaterials();
 					temp_fgs = temp_rms/HQ_RATE;
@@ -204,7 +205,7 @@ public class Environment{
 					agent.setCurrentlyStoring(false);
 				}
 				
-				//Sell All Goods
+				// Sell All Goods
 				else if(action.equals("101")){
 					
 					//sell demand's worth of Low-Quality goods
@@ -228,7 +229,8 @@ public class Environment{
 					agent.setCurrentlyStoring(false);
 				}
 				
-				//sell all risky goods
+				// sell all risky goods
+                // TODO: NOT YET IMPLEMENTED, COPIES THE ABOVE BLOCK
 				else if(action.equals("110")){
 					//stub action
 					//sell demand's worth of Low-Quality goods
@@ -252,17 +254,19 @@ public class Environment{
 					agent.setCurrentlyStoring(false);
 				}
 				
-				//store all RMs and FGs
+				// store all RMs and FGs
 				else if(action.equals("111")){
 					agent.setCurrentlyStoring(true);
 				}
 			}
 			
-			//throw away unsaved RMs/FGs
+			// throw away unsaved RMs/FGs
 			if(!agent.storingExcess())
 				agent.dumpGoods();
 
-            //compute the agent's current progress
+            // compute the agent's current progress
+            // TODO: getIncomeRatio() function does not work as intended,
+            // TODO: so no agents are ever marked as ineffective
             agent.tabulateIncomeHistory();
             if(agent.getIncomeRatio() < income_ratio_threshold && current_day < 0){
                 agent.markAgentIneffective();

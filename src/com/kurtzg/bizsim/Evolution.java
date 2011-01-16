@@ -1,5 +1,12 @@
-package com.kurtzg.bizsim; /**
-* File:			com.kurtzg.bizsim.Evolution.java
+package com.kurtzg.bizsim;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+
+/**
+* File:			Evolution.java
 *
 * Author:		Grant Kurtz
 *
@@ -7,16 +14,9 @@ package com.kurtzg.bizsim; /**
 *				list of agents.
 *
 */
-
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-
 public class Evolution{
 
-	//instance vars
+	// instance vars
 	Random generator = new Random();
 
 	/*
@@ -24,68 +24,81 @@ public class Evolution{
 	* and produce 2 new children by altering the genome of the mother and
 	* father.
 	*
+	* Param:    agents      the list of parents by which the children will have
+	*                       their genetic blue prints copied from
+	*
+	* Returns:              a list of children with a mixed genome from their
+	*                       parents
 	*/
 	public List<Agent> performCrossover(List<Agent> agents){
 	
-		//vars
-        //Collections.shuffle(agents);
+		// vars
 		int mid = agents.size()/2, rand, gene_count;
 		Agent father, mother;
 		ArrayList<Agent> children = new ArrayList<Agent>();
         Random gen = new Random();
         //Collections.shuffle(agents);
 
+        // grab agents from the start (highest income) and pair with agents
+        // at the middle, moving down the list
 		for(int i = 0; i < agents.size()-1; i+=2){
 			
-			//grab the parents
+			// grab the parents
 			father = agents.get(i);
 			mother = agents.get(1+i);
 
-			//grab their respective chromosomes
+			// grab their respective chromosomes
 			ArrayList<Boolean> father_chromes = father.getChrome();
 			ArrayList<Boolean> mother_chromes = mother.getChrome();
 			
-			//grab the size of the chromosome
-			//TODO: Need to replace the constant 3 with a dynamic value
+			// grab the size of the chromosome
+			// TODO: Need to replace the constant 3 with a dynamic value
 			gene_count = father_chromes.size();
 
+            // grab a random point to mix father/mother genes
             rand = gen.nextInt(48);
+
+            // create a new child with the father's genes first
 			ArrayList<Boolean> child = new ArrayList<Boolean>();
             child.addAll(father_chromes.subList(0, rand));
 			child.addAll(mother_chromes.subList(rand, gene_count));
-			/*child.addAll(father_chromes.subList(0,gene_count/4));
-			child.addAll(mother_chromes.subList(gene_count/4,gene_count/2));
-            child.addAll(father_chromes.subList(gene_count/2,
-                    (int)(gene_count*.75)));
-            child.addAll(mother_chromes.subList((int)(gene_count*.75),
-                    gene_count));
-			*/
 
-			//physically create two new agents, and imprint them with the new
-			//chromosomal sequences just generated
+			// physically create two new agents, and imprint them with the new
+			// chromosomal sequences just generated
 			children.add(new Agent(child));
 			child = new ArrayList<Boolean>();
 			
-			//create a child with an opposite copy property of the above child
+			// create a child with an opposite copy property of the above
+            // child ie. mother's genes first
 			child.addAll(mother_chromes.subList(0, rand));
 			child.addAll(father_chromes.subList(rand, gene_count));
 			
-			//again, imprint the child with the new chromosomal sequence
+			// add our new child to the list of next-gen children
 			children.add(new Agent(child));
 
 		}
 		
 		return children;
 	}
-	
+
+    /*
+     * Randomly performs max_mutations on the entire chromosome of all agents
+     *
+     * Param:   agents      the list of agents to augment
+     *
+     * Returns:             a list of mutated children
+     */
 	public List<Agent> performMutation(List<Agent> agents){
 		
-		//vars
+		// vars
 		int max_mutations = 6, rand,
 				chrome_size = agents.get(0).getChrome().size();
-		
+
+        // grab all agents
 		for(Agent a : agents){
 			ArrayList<Boolean> mutated = a.getChrome();
+
+            // perform a mutation randomly on any bit
 			for(int i = 0; i < max_mutations;++i){
 				rand = generator.nextInt(chrome_size);
 				mutated.set(rand, !mutated.get(rand));

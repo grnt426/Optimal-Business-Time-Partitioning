@@ -1,17 +1,5 @@
 package com.kurtzg.bizsim;
-/**
-* File:			com.kurtzg.bizsim.BizSimMain.java
-*
-* Author:		Grant Kurtz
-*
-* Description:	Handles the initialization of the program, asks for user input
-*				on environment and simulation values, and then creates the
-*               model/view to start the program
-*
-*/
 
-
-// imports
 import sun.misc.JavaLangAccess;
 
 import java.awt.*;
@@ -23,6 +11,16 @@ import java.util.Collections;
 import javax.swing.*;
 import javax.xml.bind.Marshaller;
 
+/**
+* File:			BizSimMain.java
+*
+* Author:		Grant Kurtz
+*
+* Description:	Handles the initialization of the program, asks for user input
+*				on environment and simulation values, and then creates the
+*               model/view to start the program
+*
+*/
 public class BizSimMain{
 
 	public static void main(String[] args){
@@ -47,7 +45,7 @@ public class BizSimMain{
 			System.exit(0);
 		}
 
-        //create our Model/View and start the program
+        // create our Model/View and start the program
         Model m = new Model();
         View v = new View(m, numThreads);
 	}
