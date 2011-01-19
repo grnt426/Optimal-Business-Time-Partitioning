@@ -53,6 +53,7 @@ public class Agent implements Comparable<Agent>, Cloneable{
         // copy all the arrays first
         chromosome = new ArrayList<Boolean>(agent.getChrome());
         income_history = new ArrayList<Integer>(agent.income_history);
+        total_history = new ArrayList<Integer>(agent.total_history);
 
         // copy over the primitives next
         name = agent.name;
