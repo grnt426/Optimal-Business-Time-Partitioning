@@ -157,6 +157,54 @@ public class Environment{
         return LQ_RATE;
     }
 
+    public int getMaxLQProducible(){
+        return MAX_LQ_PER_AC;
+    }
+
+    public int getMaxMQProducible(){
+        return MAX_MQ_PER_AC;
+    }
+
+    public int getMaxHQProducible(){
+        return MAX_HQ_PER_AC;
+    }
+
+    public void setMaxLQProducible(int max){
+        MAX_LQ_PER_AC = max;
+    }
+
+    public void setMaxMQProducible(int max){
+        MAX_MQ_PER_AC = max;
+    }
+
+    public void setMaxHQProducible(int max){
+        MAX_HQ_PER_AC = max;
+    }
+
+    public int getMaxLQSell(){
+        return MAX_LQSELL;
+    }
+
+    public int getMaxMQSell(){
+        return MAX_MQSELL;
+    }
+
+    public int getMaxHQSell(){
+        return MAX_HQSELL;
+    }
+
+    public void setMaxLQSell(int max){
+        MAX_LQSELL = max;
+    }
+
+    public void setMaxMQSell(int max){
+        MAX_MQSELL = max;
+    }
+
+    public void setMaxHQSell(int max){
+        MAX_HQSELL = max;
+    }
+
     public void setIncomeRatioThreshold(double threshold){
         this.income_ratio_threshold = threshold;
     }

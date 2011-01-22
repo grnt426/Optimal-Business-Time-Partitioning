@@ -5,7 +5,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import java.util.List;
 
 /*
  * File:        View.java
@@ -26,21 +25,39 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
     JButton start_stop = new JButton("Start/Stop");
     JButton reset = new JButton("Restart");
     JButton reconfigure = new JButton("Reconfigure");
+
+    // environment control fields
     JTextField low_rate = new JTextField();
     JTextField med_rate = new JTextField();
     JTextField high_rate = new JTextField();
     JTextField low_sale = new JTextField();
     JTextField med_sale = new JTextField();
     JTextField high_sale = new JTextField();
+    JTextField high_prod = new JTextField();
+    JTextField med_prod = new JTextField();
+    JTextField low_prod = new JTextField();
+    JTextField high_sell = new JTextField();
+    JTextField med_sell = new JTextField();
+    JTextField low_sell = new JTextField();
+    JTextField buy_roi = new JTextField();
+    JTextField sell_roi = new JTextField();
+    JTextField buy_roi_chance = new JTextField();
+    JTextField sell_roi_chance = new JTextField();
+
+    // GA specific control fields
     JTextField agent_count = new JTextField();
     JTextField generation_count = new JTextField();
     JTextField day_count = new JTextField();
     JTextField elite_percent = new JTextField();
     JTextField parent_percent = new JTextField();
     JTextField agent_performance = new JTextField();
+
+    // elite display information
     JTextField cur_elite_total = new JTextField("0");
     JTextArea cur_elite_genome = new JTextArea(15, 4);
-    JTextArea message_history = new JTextArea(11, 29);
+
+    // message window fields
+    JTextArea message_history = new JTextArea(11, 33);
     JScrollPane message_history_scroll = new JScrollPane(message_history);
     JTabbedPane graphs = new JTabbedPane();
     JFrame graphWindow;
@@ -87,6 +104,7 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
         control_window.setLayout(new BorderLayout());
 
         // species List
+        /*
         JPanel species_control = new JPanel();
         JLabel species_list_l = new JLabel("Species Running");
         DefaultListModel species_list = new DefaultListModel();
@@ -97,6 +115,7 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
                 ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         species_select_list.setLayoutOrientation(JList.VERTICAL);
         species_select_list.setVisibleRowCount(3);
+        */
 
         // start listening to all buttons
         start_stop.addActionListener(this);
@@ -111,20 +130,82 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
         // create a panel for all our environment variables
         JPanel environment_controls = new JPanel();
         environment_controls.setBorder(BorderFactory.createTitledBorder(
-                "Modify Finished Good Values"));
-        environment_controls.setLayout(new GridLayout(3, 4));
-        environment_controls.add(new JLabel("High Rate:"));
-        environment_controls.add(high_rate);
-        environment_controls.add(new JLabel("High Sale:"));
-        environment_controls.add(high_sale);
-        environment_controls.add(new JLabel("Med Rate:"));
-        environment_controls.add(med_rate);
-        environment_controls.add(new JLabel("Med Sale:"));
-        environment_controls.add(med_sale);
-        environment_controls.add(new JLabel("Low Rate:"));
-        environment_controls.add(low_rate);
-        environment_controls.add(new JLabel("Low Sale:"));
-        environment_controls.add(low_sale);
+                "Modify Environment Settings"));
+        environment_controls.setLayout(new GridLayout(4, 1));
+
+        // set the size of the button to just 3 characters
+        high_rate.setColumns(2);
+        high_sale.setColumns(3);
+        med_rate.setColumns(2);
+        med_sale.setColumns(3);
+        low_rate.setColumns(2);
+        low_sale.setColumns(3);
+        buy_roi.setColumns(3);
+        buy_roi_chance.setColumns(3);
+        sell_roi.setColumns(3);
+        sell_roi_chance.setColumns(3);
+
+        // High Quality goods section
+        JPanel high_controls = new JPanel();
+        high_controls.setBorder(BorderFactory.createTitledBorder(
+                "High Quality Goods"));
+        high_controls.setLayout(new GridLayout(1, 8));
+        high_controls.add(new JLabel("RMs:"));
+        high_controls.add(high_rate);
+        high_controls.add(new JLabel("Sell:"));
+        high_controls.add(high_sale);
+        high_controls.add(new JLabel("Make:"));
+        high_controls.add(high_prod);
+        high_controls.add(new JLabel("Buy:"));
+        high_controls.add(high_sell);
+
+        // Medium Quality Goods Section
+        JPanel med_controls = new JPanel();
+        med_controls.setBorder(BorderFactory.createTitledBorder(
+                "Medium Quality Goods"));
+        med_controls.setLayout(new GridLayout(1, 8));
+        med_controls.add(new JLabel("RMs:"));
+        med_controls.add(med_rate);
+        med_controls.add(new JLabel("Sell:"));
+        med_controls.add(med_sale);
+        med_controls.add(new JLabel("Make:"));
+        med_controls.add(med_prod);
+        med_controls.add(new JLabel("Buy:"));
+        med_controls.add(med_sell);
+
+        // Low Quality Goods Section
+        JPanel low_controls = new JPanel();
+        low_controls.setBorder(BorderFactory.createTitledBorder(
+                "Low Quality Goods"));
+        low_controls.setLayout(new GridLayout(1, 8));
+        low_controls.add(new JLabel("RMs:"));
+        low_controls.add(low_rate);
+        low_controls.add(new JLabel("Sell:"));
+        low_controls.add(low_sale);
+        low_controls.add(new JLabel("Make:"));
+        low_controls.add(low_prod);
+        low_controls.add(new JLabel("Buy:"));
+        low_controls.add(low_sell);
+
+        // Risk Section
+        JPanel risk_control = new JPanel();
+        risk_control.setBorder(BorderFactory.createTitledBorder(
+                "Risk Payoffs"));
+        risk_control.setLayout(new GridLayout(1, 6));
+        risk_control.add(new JLabel("RMs:"));
+        risk_control.add(buy_roi_chance);
+        risk_control.add(new JLabel("ROI:"));
+        risk_control.add(buy_roi);
+        risk_control.add(new JLabel("FGs:"));
+        risk_control.add(sell_roi_chance);
+        risk_control.add(new JLabel("ROI:"));
+        risk_control.add(sell_roi);
+
+        // add each section to the environment_control panel
+        environment_controls.add(high_controls);
+        environment_controls.add(med_controls);
+        environment_controls.add(low_controls);
+        environment_controls.add(risk_control);
 
         // setup the default values for these text fields
         high_rate.setText(e.getHQRate()+"");
@@ -133,6 +214,16 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
         med_sale.setText(e.getMQSale()+"");
         low_rate.setText(e.getLQRate()+"");
         low_sale.setText(e.getLQSale()+"");
+        high_prod.setText(e.getMaxHQProducible()+"");
+        med_prod.setText(e.getMaxMQProducible()+"");
+        low_prod.setText(e.getMaxLQProducible()+"");
+        high_sell.setText(e.getMaxHQSell()+"");
+        med_sell.setText(e.getMaxMQSell()+"");
+        low_sell.setText(e.getMaxLQSell()+"");
+        buy_roi.setText(".25");
+        buy_roi_chance.setText(".33");
+        sell_roi.setText(".15");
+        sell_roi_chance.setText(".33");
 
         // create a panel for all our simulation variables
         JPanel simulation_controls = new JPanel();
@@ -151,6 +242,7 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
         simulation_controls.add(agent_performance);
         simulation_controls.add(new JLabel("Day Count"));
         simulation_controls.add(day_count);
+        day_count.setEnabled(false);
 
         // setup the default values for these text fields
         agent_count.setText(model.getMaxAgentCount() + "");
@@ -190,13 +282,6 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
         field_controls.add(elite_panel);
         field_controls.add(message_panel);
 
-        // set the size of the button to just 3 characters
-        high_rate.setColumns(3);
-        high_sale.setColumns(3);
-        med_rate.setColumns(3);
-        med_sale.setColumns(3);
-        low_rate.setColumns(3);
-        low_sale.setColumns(3);
 
         // create a panel for all our flow control buttons
         JPanel control_flow_buttons = new JPanel();
@@ -209,12 +294,12 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
         cur_elite_genome.setLineWrap(true);
 
         // add our components to the window
-        species_control.add(species_list_l);
-        species_control.add(species_select_list);
-        control_window.add(species_control, BorderLayout.WEST);
+        //species_control.add(species_list_l);
+        //species_control.add(species_select_list);
+        //control_window.add(species_control, BorderLayout.WEST);
         control_window.add(field_controls, BorderLayout.CENTER);
         control_window.add(control_flow_buttons, BorderLayout.SOUTH);
-        control_window.setLocation(620, 0);
+        control_window.setLocation(630, 0);
         control_window.setVisible(true);
 
         // tell all our paint classes that we want to know about mouse events
