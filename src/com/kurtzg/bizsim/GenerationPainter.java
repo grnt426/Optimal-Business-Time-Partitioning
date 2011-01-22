@@ -26,7 +26,7 @@ public class GenerationPainter extends JPanel{
 
     public void paint(Graphics g){
 
-        //override the previously painted image, and provide a background
+        // override the previously painted image, and provide a background
         super.paintComponent(g);
         setBackground(Color.WHITE);
 

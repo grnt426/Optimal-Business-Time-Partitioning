@@ -17,8 +17,8 @@ public class ElitePainter extends JPanel{
 
     // instance vars
     private List<Agent> elites = new ArrayList<Agent>();
-    protected static final double MAX_X = 600.0, MAX_Y = 480.0,
-            MAX_MONEY = 2000000.0;
+    private final double MAX_X = 600.0, MAX_Y = 480.0;
+    private int MAX_MONEY = 1800000;
     private List<Color> s_colors = new ArrayList<Color>();
 
     /*
@@ -27,7 +27,7 @@ public class ElitePainter extends JPanel{
      */
     public ElitePainter(){
 
-        //setup some basic colors for our species
+        // setup some basic colors for our species
         s_colors.add(new Color(255, 0, 0));
         s_colors.add(new Color(0, 255, 0));
         s_colors.add(new Color(0, 0, 255));
@@ -49,11 +49,15 @@ public class ElitePainter extends JPanel{
 
         // draw our x- and y-axis
         for(int i = 0; i < 11; ++i){
+
+            // y-axis
             g.drawLine((55*i), 0, (55*i), (int)MAX_Y);
+
+            // x-axis
             g.drawString((i*10) + "", (55*i)+1, (int)MAX_Y-2);
             g.drawLine(0, (int)(MAX_Y/10*i), (int)MAX_X, (int)(MAX_Y/10*i));
             if(i != 0)
-                g.drawString("$"+(i*200000), 0, (int)(MAX_Y/10*(10-i)));
+                g.drawString("$"+(i*(MAX_MONEY/10)), 0, (int)(MAX_Y/10*(10-i)));
         }
 
         // draw each elite agent from all species
@@ -67,13 +71,13 @@ public class ElitePainter extends JPanel{
             if(a == null)
                 continue;
 
-            //grab the agent's income history
+            // grab the agent's income history
             List<Integer> income_history = a.getTotalHistory();
 
             // draw a point for each day in this agent's income history
             for(int k = 0; k < income_history.size(); ++k){
-                int income = income_history.get(k);
-                g.fillOval((int)(k*5.5), (int)((1-income/MAX_MONEY)*MAX_Y), 3, 3);
+                double income = income_history.get(k);
+                g.fillOval((int)(k*5.5), (int)((1.0-income/MAX_MONEY)*MAX_Y), 3, 3);
             }
         }
     }
@@ -84,6 +88,13 @@ public class ElitePainter extends JPanel{
      * Param:   elites      a list of elite agents to draw
      */
     public void setElites(List<Agent> elites){
+
+        // setup our y-axis boundary
+        for(Agent a : elites){
+            if(a.getMoney() > MAX_MONEY*.8)
+                MAX_MONEY = (int)(a.getMoney()*1.15);
+        }
+
         this.elites = elites;
         repaint();
     }

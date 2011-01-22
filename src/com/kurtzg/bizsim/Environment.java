@@ -3,6 +3,7 @@ package com.kurtzg.bizsim;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 /**
 * File:			Environment.java
@@ -19,15 +20,21 @@ public class Environment{
 	private int RM_COST, LQ_RATE, MQ_RATE, HQ_RATE, LQ_SALE, MQ_SALE, HQ_SALE,
 				MAX_RMS_PER_AC, MAX_LQ_PER_AC, MAX_MQ_PER_AC, MAX_HQ_PER_AC,
                 MAX_LQSELL, MAX_MQSELL, MAX_HQSELL;
-	private int ACTIONS_TOTAL, current_day;
-    private double income_ratio_threshold;
+	private int ACTIONS_TOTAL, current_day, total_days;
+    private double income_ratio_threshold, RISK_BUY_ROI, RISK_SELL_ROI;
 	private ArrayList<Agent> agents;
+    private List<Boolean> riskBuyDays;
+    private List<Boolean> riskSellDays;
 	
 	/*
 	* Initializes with hard-coded defaults
 	*/
 	public Environment(){
+
+        // setup some default values
 		agents = new ArrayList<Agent>();
+        riskBuyDays = new ArrayList<Boolean>();
+        riskSellDays = new ArrayList<Boolean>();
 		ACTIONS_TOTAL = 16;
 		RM_COST = 5;
 		LQ_RATE = 3;
@@ -44,14 +51,34 @@ public class Environment{
 		MAX_MQSELL = 1300;
 		MAX_HQSELL = 900;
 		current_day = 0;
+        total_days = 100;
         income_ratio_threshold = 1.2;
+        RISK_BUY_ROI = .25;
+        RISK_SELL_ROI = .15;
+
+        // randomly populate the buy/sell risk days such that 1/3 of the days
+        // give a ROI
+        int rand;
+        Random generator = new Random();
+        for(int i = 0; i < total_days; ++i){
+            rand = generator.nextInt(100);
+            riskBuyDays.add(rand < 33);
+            rand = generator.nextInt(100);
+            riskSellDays.add(rand < 33);
+        }
+
 	}
 
     /*
      * Copy-Constructor
      */
     public Environment(Environment e){
+
         this();
+
+        if(e == null)
+            return;
+
         RM_COST = e.RM_COST;
         LQ_RATE = e.LQ_RATE;
         MQ_RATE = e.MQ_RATE;
@@ -60,6 +87,8 @@ public class Environment{
         MQ_SALE = e.MQ_SALE;
         HQ_SALE = e.HQ_SALE;
         income_ratio_threshold = e.income_ratio_threshold;
+        riskBuyDays = new ArrayList<Boolean>(e.riskBuyDays);
+        riskSellDays = new ArrayList<Boolean>(e.riskSellDays);
     }
 
 	public void addAgent(Agent a){
@@ -159,6 +188,8 @@ public class Environment{
 				String action = actions.get(i) ? "1":"0";
 				action += actions.get(i+1) ? "1" : "0";
 				action += actions.get(i+2) ? "1" : "0";
+                boolean riskSale = riskSellDays.get(current_day);
+                boolean riskBuy = riskBuyDays.get(current_day);
 
 				// Search for Raw Materials
 				if(action.equals("000")){
@@ -173,13 +204,20 @@ public class Environment{
 				}
 				
 				// Risky search for Raw Materials
-                // TODO: NOT YET IMPLEMENTED, COPIES THE ABOVE BLOCK
+                // TODO: TEST THIS
 				else if(action.equals("001")){
+
+                    // vars
 					money = agent.getMoney();
-					temp_rms = money/RM_COST;
-					temp_rms = temp_rms > MAX_RMS_PER_AC ? 
-									MAX_RMS_PER_AC : temp_rms;
-					money = money - (temp_rms * RM_COST);
+                    double risk_payoff = riskBuy ? 1+RISK_BUY_ROI : 1-RISK_BUY_ROI;
+
+                    // compute new rms/money
+                    temp_rms = money/(int)(RM_COST*risk_payoff);
+                    temp_rms = temp_rms > (MAX_RMS_PER_AC*risk_payoff) ?
+                                    (int)(MAX_RMS_PER_AC*risk_payoff) : temp_rms;
+                    money = money - (temp_rms * (int)(RM_COST*risk_payoff));
+
+                    // update our agent
 					agent.setMoney(money);
 					agent.adjustRawMaterials(temp_rms);
 					agent.setCurrentlyStoring(false);
@@ -223,7 +261,7 @@ public class Environment{
 				
 				// Sell All Goods
 				else if(action.equals("101")){
-					
+
 					//sell demand's worth of Low-Quality goods
 					temp_fgs = agent.getProducedLQ();
 					temp_fgs = temp_fgs > MAX_LQSELL ? MAX_LQSELL : temp_fgs;
@@ -246,26 +284,35 @@ public class Environment{
 				}
 				
 				// sell all risky goods
-                // TODO: NOT YET IMPLEMENTED, COPIES THE ABOVE BLOCK
+                // TODO: TEST THIS
 				else if(action.equals("110")){
-					//stub action
-					//sell demand's worth of Low-Quality goods
+
+                    // vars
+                    double risk_payoff = riskSale ? 1+RISK_SELL_ROI : 1-RISK_SELL_ROI;
+                    int new_max;
+
+					// sell demand's worth of Low-Quality goods
 					temp_fgs = agent.getProducedLQ();
-					temp_fgs = temp_fgs > MAX_LQSELL ? MAX_LQSELL : temp_fgs;
+                    new_max = (int)(MAX_LQSELL * risk_payoff);
+					temp_fgs = temp_fgs > new_max ? new_max : temp_fgs;
 					agent.adjustProducedLQ(-temp_fgs);
-					money = temp_fgs * LQ_SALE;
+					money = temp_fgs * (int)(LQ_SALE * risk_payoff);
 					
-					//sell demand's worth of Medium-Quality goods
+					// sell demand's worth of Medium-Quality goods
 					temp_fgs = agent.getProducedMQ();
-					temp_fgs = temp_fgs > MAX_MQSELL ? MAX_MQSELL : temp_fgs;
+                    new_max = (int)(MAX_MQSELL * risk_payoff);
+					temp_fgs = temp_fgs > new_max ? new_max : temp_fgs;
 					agent.adjustProducedMQ(-temp_fgs);
-					money += temp_fgs * MQ_SALE;
+					money += temp_fgs * (int)(MQ_SALE*risk_payoff);
 					
-					//sell demand's worth of High-Quality goods
+					// sell demand's worth of High-Quality goods
 					temp_fgs = agent.getProducedHQ();
-					temp_fgs = temp_fgs > MAX_HQSELL ? MAX_HQSELL : temp_fgs;
+                    new_max = (int)(MAX_HQSELL * risk_payoff);
+					temp_fgs = temp_fgs > new_max ? new_max : temp_fgs;
 					agent.adjustProducedHQ(-temp_fgs);
-					money += temp_fgs * HQ_SALE;
+					money += temp_fgs * (int)(HQ_SALE*risk_payoff);
+
+                    // update the agent
 					agent.adjustMoney(money);
 					agent.setCurrentlyStoring(false);
 				}
