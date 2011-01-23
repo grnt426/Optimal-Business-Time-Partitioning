@@ -17,6 +17,8 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Agent implements Comparable<Agent>, Cloneable{
 
@@ -30,6 +32,8 @@ public class Agent implements Comparable<Agent>, Cloneable{
 	private Random gen = new Random();
     private List<Integer> total_history = new ArrayList<Integer>();
     private String name = "Generated";
+
+    private final Lock lock = new ReentrantLock();
 	
 	/*
 	* Creates a random order queue for our agent
@@ -120,10 +124,13 @@ public class Agent implements Comparable<Agent>, Cloneable{
 	public boolean setChrome(String chrome){
 		chromosome = new ArrayList<Boolean>();
 		for(Character c : chrome.toCharArray()){
-			if(c == ' ')
+			if(c == ' ' || c == ',')
 				continue;
 			chromosome.add(c == '0' ? false : true);
 		}
+
+        System.out.println(toString());
+
         return hasWellFormedGenome();
 	}
 
@@ -285,6 +292,8 @@ public class Agent implements Comparable<Agent>, Cloneable{
 		int i = 1;
 		
 		s = "{";
+        if(chromosome == null)
+            return "";
 		for(Boolean b : chromosome){
 			s += b ? "1":"0";
 			if(i % MAX_GENE_LENGTH == 0){
@@ -307,7 +316,9 @@ public class Agent implements Comparable<Agent>, Cloneable{
      *                          if this agent has more money
      */
 	public int compareTo(Agent a){
-		a = (Agent) a;
+
+        if(a == null)
+            return -1;
 		if(money < a.getMoney())
 			return -1;
 		if(money > a.getMoney())

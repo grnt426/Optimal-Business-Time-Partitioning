@@ -5,6 +5,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /*
  * File:        View.java
@@ -220,10 +223,10 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
         high_sell.setText(e.getMaxHQSell()+"");
         med_sell.setText(e.getMaxMQSell()+"");
         low_sell.setText(e.getMaxLQSell()+"");
-        buy_roi.setText(".25");
-        buy_roi_chance.setText(".33");
-        sell_roi.setText(".15");
-        sell_roi_chance.setText(".33");
+        buy_roi.setText(e.getRiskyBuyROI()+"");
+        buy_roi_chance.setText(e.getRiskyBuyChance()+"");
+        sell_roi.setText(e.getRiskySellROI()+"");
+        sell_roi_chance.setText(e.getRiskySellChance()+"");
 
         // create a panel for all our simulation variables
         JPanel simulation_controls = new JPanel();
@@ -281,7 +284,6 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
         field_controls.add(simulation_controls);
         field_controls.add(elite_panel);
         field_controls.add(message_panel);
-
 
         // create a panel for all our flow control buttons
         JPanel control_flow_buttons = new JPanel();
@@ -363,27 +365,45 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
             }
             else if(msg.equals("new_elite")){
 
-                // NOTE: THE BELOW IS HIGHLY UNSTABLE WITH MULTIPLE THREADS
+                    // NOTE: THE BELOW IS HIGHLY UNSTABLE WITH MULTIPLE THREADS
+                    // AND VERY, VERY HACKED
 
-                // vars
-                ArrayList<Agent> elites = new ArrayList(model.getElites());
+                    // vars
+                    List<Agent> elites = model.getElites();
+                    List<Agent> nl = new ArrayList<Agent>(elites.size());
 
-                // update the paint class
-                ep.setElites(elites);
-
-                if(elites != null && elites.size() != 0){
-
-                    Agent top_elite = new Agent(elites.get(0));
-
-                    if(top_elite != null){
-
-                        // update the GUI window
-                        cur_elite_total.setText("$" + top_elite.getMoney());
-                        cur_elite_genome.setText(top_elite.toString());
+                    synchronized (elites){
+                        for( Agent a : elites ) {
+                            if (a == null)
+                                nl.add(null);
+                            else{
+                                synchronized (a) {
+                                    nl.add(a.clone());
+                                }
+                            }
+                        }
                     }
-                }
 
-                model.donCopyingElites();
+                    ep.setElites(elites);
+
+                    if(elites != null && elites.size() != 0){
+
+                        int most_money = 0;
+                        Agent top_elite = null;
+                        for(Agent a : elites){
+                            if(a != null && a.getMoney() > most_money){
+                                top_elite = a;
+                                most_money = a.getMoney();
+                            }
+                        }
+
+                        if(top_elite != null){
+
+                            // update the GUI window
+                            cur_elite_total.setText("$" + top_elite.getMoney());
+                            cur_elite_genome.setText(top_elite.toString());
+                        }
+                    }
             }
             else if(msg.equals("generation_processing_done")){
                 appendMessage("A Species has Finished Processing");
@@ -437,21 +457,43 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
                 try{
 
                     // override existing values
-                    environment.setHQSale(Integer.parseInt(
-                            high_sale.getText()));
-                    environment.setHQRate(Integer.parseInt(
-                            high_rate.getText()));
-                    environment.setMQRate(Integer.parseInt(
-                            med_rate.getText()));
-                    environment.setMQSale(Integer.parseInt(
-                            med_sale.getText()));
-                    environment.setLQRate(Integer.parseInt(
-                            low_rate.getText()));
-                    environment.setLQSale(Integer.parseInt(
-                            low_sale.getText()));
-                    environment.setIncomeRatioThreshold(Double.parseDouble(
-                            agent_performance.getText())
-                    );
+                    int value = Integer.parseInt(high_sale.getText());
+                    environment.setHQSale(value);
+                    value = Integer.parseInt(high_rate.getText());
+                    environment.setHQRate(value);
+                    value = Integer.parseInt(med_rate.getText());
+                    environment.setMQRate(value);
+                    value = Integer.parseInt(med_sale.getText());
+                    environment.setMQSale(value);
+                    value = Integer.parseInt(low_rate.getText());
+                    environment.setLQRate(value);
+                    value = Integer.parseInt(low_sale.getText());
+                    environment.setLQSale(value);
+                    value = Integer.parseInt(low_prod.getText());
+                    environment.setMaxLQProducible(value);
+                    value = Integer.parseInt(med_prod.getText());
+                    environment.setMaxMQProducible(value);
+                    value = Integer.parseInt(high_prod.getText());
+                    environment.setMaxHQProducible(value);
+                    value = Integer.parseInt(low_sell.getText());
+                    environment.setMaxLQSell(value);
+                    value = Integer.parseInt(med_sell.getText());
+                    environment.setMaxMQSell(value);
+                    value = Integer.parseInt(high_sell.getText());
+                    environment.setMaxHQSell(value);
+                    double valued = Double.parseDouble(agent_performance.getText());
+                    environment.setIncomeRatioThreshold(valued);
+                    valued = Double.parseDouble(buy_roi.getText());
+                    environment.setRiskyBuyROI(valued);
+                    valued = Double.parseDouble(sell_roi.getText());
+                    environment.setRiskySellROI(valued);
+                    valued = Double.parseDouble(buy_roi_chance.getText());
+                    environment.setRiskyBuyChance(valued);
+                    valued = Double.parseDouble(sell_roi_chance.getText());
+                    environment.setRiskySellChance(valued);
+
+                    // tell the environment to regenerate the lucky days
+                    environment.regenerateLuckyDays();
 
                     // grab the rest of the values interdependent of the
                     // environment

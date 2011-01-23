@@ -98,15 +98,7 @@ public class Model implements ActionListener{
     }
 
     public List<Agent> getElites(){
-        copyingElites = true;
         return elites;
-    }
-
-    public void donCopyingElites(){
-        copyingElites = false;
-        synchronized (this){
-            notifyAll();
-        }
     }
 
     public boolean reconfigureState(Environment e, int agent_count, int day_count,
@@ -236,8 +228,6 @@ public class Model implements ActionListener{
 
     private void replaceEnvironment(Environment e){
 
-        // TODO: this should pause the thread before replacing the environment
-        // TODO: otherwise it may produce interesting results if it doesn't
         for(Species s : species){
             s.replaceEnvironment(new Environment(e));
         }
@@ -275,21 +265,12 @@ public class Model implements ActionListener{
         }
         else if(msg.equals("new_elite")){
 
-            synchronized (this){
-                try{
-                    while(copyingElites){
-                        wait();
-                    }
-                }
-                catch(InterruptedException ie){
-                    
-                }
-            }
-
             Species s = (Species) src;
 
             // replace the previous species' elite with the new one
-            elites.set(species.indexOf(s), s.getCurrentElite());
+            synchronized (elites){
+                elites.set(species.indexOf(s), s.getCurrentElite());
+            }
 
             // alert the controller
             processEvent(new ActionEvent(this, ActionEvent.ACTION_PERFORMED,

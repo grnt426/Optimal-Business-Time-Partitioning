@@ -21,14 +21,15 @@ public class Environment{
 				MAX_RMS_PER_AC, MAX_LQ_PER_AC, MAX_MQ_PER_AC, MAX_HQ_PER_AC,
                 MAX_LQSELL, MAX_MQSELL, MAX_HQSELL;
 	private int ACTIONS_TOTAL, current_day, total_days;
-    private double income_ratio_threshold, RISK_BUY_ROI, RISK_SELL_ROI;
+    private double income_ratio_threshold, RISK_BUY_ROI, RISK_SELL_ROI,
+                RISK_BUY_CHANCE, RISK_SELL_CHANCE;
 	private ArrayList<Agent> agents;
     private List<Boolean> riskBuyDays;
     private List<Boolean> riskSellDays;
-	
-	/*
-	* Initializes with hard-coded defaults
-	*/
+
+    /*
+    * Initializes with hard-coded defaults
+    */
 	public Environment(){
 
         // setup some default values
@@ -42,6 +43,7 @@ public class Environment{
 		HQ_RATE = 7;
 		LQ_SALE = 19;
 		MQ_SALE = 29;
+
 		HQ_SALE = 39;
 		MAX_RMS_PER_AC = 2500;
 		MAX_LQ_PER_AC = 1000;
@@ -55,18 +57,11 @@ public class Environment{
         income_ratio_threshold = 1.2;
         RISK_BUY_ROI = .25;
         RISK_SELL_ROI = .15;
+        RISK_BUY_CHANCE = .33;
+        RISK_SELL_CHANCE = .33;
 
-        // randomly populate the buy/sell risk days such that 1/3 of the days
-        // give a ROI
-        int rand;
-        Random generator = new Random();
-        for(int i = 0; i < total_days; ++i){
-            rand = generator.nextInt(100);
-            riskBuyDays.add(rand < 33);
-            rand = generator.nextInt(100);
-            riskSellDays.add(rand < 33);
-        }
-
+        // populate the risky lucky days
+        regenerateLuckyDays();
 	}
 
     /*
@@ -79,6 +74,7 @@ public class Environment{
         if(e == null)
             return;
 
+        // copy over the new values
         RM_COST = e.RM_COST;
         LQ_RATE = e.LQ_RATE;
         MQ_RATE = e.MQ_RATE;
@@ -87,6 +83,8 @@ public class Environment{
         MQ_SALE = e.MQ_SALE;
         HQ_SALE = e.HQ_SALE;
         income_ratio_threshold = e.income_ratio_threshold;
+        RISK_BUY_ROI = e.RISK_BUY_ROI;
+        RISK_SELL_ROI = e.RISK_SELL_ROI;
         riskBuyDays = new ArrayList<Boolean>(e.riskBuyDays);
         riskSellDays = new ArrayList<Boolean>(e.riskSellDays);
     }
@@ -98,6 +96,23 @@ public class Environment{
 	public void addAgents(List<Agent> a){
 		agents.addAll(a);
 	}
+
+    public void regenerateLuckyDays(){
+
+        // reset the lucky days so we don't keep adding more
+        riskBuyDays.clear();
+        riskSellDays.clear();
+
+        // randomly populate the buy/sell risk days
+        int rand;
+        Random generator = new Random();
+        for(int i = 0; i < total_days; ++i){
+            rand = generator.nextInt(100);
+            riskBuyDays.add(rand < RISK_BUY_CHANCE*100);
+            rand = generator.nextInt(100);
+            riskSellDays.add(rand < RISK_SELL_CHANCE*100);
+        }
+    }
 
     /*
      * Clears the environment of agents and resets the environment so that
@@ -212,6 +227,38 @@ public class Environment{
     public double getIncomeRatioThreshold(){
         return income_ratio_threshold;
     }
+
+    public double getRiskyBuyROI() {
+        return RISK_BUY_ROI;
+    }
+
+    public double getRiskySellROI() {
+        return RISK_SELL_ROI;
+    }
+
+    public void setRiskyBuyROI(double RISK_BUY_ROI) {
+        this.RISK_BUY_ROI = RISK_BUY_ROI;
+    }
+
+    public void setRiskySellROI(double RISK_SELL_ROI) {
+        this.RISK_SELL_ROI = RISK_SELL_ROI;
+    }
+
+    public double getRiskyBuyChance() {
+        return RISK_BUY_CHANCE;
+    }
+
+    public void setRiskyBuyChance(double RISK_BUY_CHANCE) {
+        this.RISK_BUY_CHANCE = RISK_BUY_CHANCE;
+    }
+
+    public double getRiskySellChance() {
+        return RISK_SELL_CHANCE;
+    }
+
+    public void setRiskySellChance(double RISK_SELL_CHANCE) {
+        this.RISK_SELL_CHANCE = RISK_SELL_CHANCE;
+    }
 	
 	/*
 	* Processes a single business day for all agents, grabbing each agent's
@@ -252,18 +299,18 @@ public class Environment{
 				}
 				
 				// Risky search for Raw Materials
-                // TODO: TEST THIS
 				else if(action.equals("001")){
 
                     // vars
 					money = agent.getMoney();
                     double risk_payoff = riskBuy ? 1+RISK_BUY_ROI : 1-RISK_BUY_ROI;
+                    double risk_cost_down = riskBuy ? 1-RISK_BUY_ROI : 1 +RISK_BUY_ROI;
 
                     // compute new rms/money
-                    temp_rms = money/(int)(RM_COST*risk_payoff);
+                    temp_rms = money/(int)(RM_COST*risk_cost_down);
                     temp_rms = temp_rms > (MAX_RMS_PER_AC*risk_payoff) ?
                                     (int)(MAX_RMS_PER_AC*risk_payoff) : temp_rms;
-                    money = money - (temp_rms * (int)(RM_COST*risk_payoff));
+                    money = money - (temp_rms * (int)(RM_COST*risk_cost_down));
 
                     // update our agent
 					agent.setMoney(money);
@@ -332,7 +379,6 @@ public class Environment{
 				}
 				
 				// sell all risky goods
-                // TODO: TEST THIS
 				else if(action.equals("110")){
 
                     // vars

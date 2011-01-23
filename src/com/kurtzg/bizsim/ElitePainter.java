@@ -89,8 +89,12 @@ public class ElitePainter extends JPanel{
      */
     public void setElites(List<Agent> elites){
 
+        if(elites.isEmpty())
+                return;
         // setup our y-axis boundary
         for(Agent a : elites){
+            if(a == null)
+                continue;
             if(a.getMoney() > MAX_MONEY*.8)
                 MAX_MONEY = (int)(a.getMoney()*1.15);
         }
