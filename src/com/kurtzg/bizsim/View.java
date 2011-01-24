@@ -274,7 +274,9 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
                 "Message History"
         ));
         message_panel.add(message_history_scroll);
+        message_history_scroll.setHorizontalScrollBar(null);
         message_history.setText("Simulation Started!");
+
 
         // this panel encompasses the different panels for altering and showing
         // the current state of the simulation
@@ -364,9 +366,6 @@ public class View implements ActionListener, MouseListener, MouseMotionListener{
                paint.setHistory(model.getSpeciesData());
             }
             else if(msg.equals("new_elite")){
-
-                    // NOTE: THE BELOW IS HIGHLY UNSTABLE WITH MULTIPLE THREADS
-                    // AND VERY, VERY HACKED
 
                     // vars
                     List<Agent> elites = model.getElites();

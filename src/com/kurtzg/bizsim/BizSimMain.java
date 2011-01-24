@@ -25,20 +25,14 @@ public class BizSimMain{
 
 	public static void main(String[] args){
 		
-		// process arguments
-		if(args.length != 3){
-			System.err.println("WTF? I need the correct number of arguments");
-			System.exit(0);
-		}
-		
 		// vars
-		int numThreads = 0, numAgents = 0, numGenerations = 0;
+		int numThreads = 1, numAgents = 100, numGenerations = 600;
 
         // attempt to parse the input
 		try{
-			numThreads = Integer.parseInt(args[0]);
-			numAgents = Integer.parseInt(args[1]);
-			numGenerations = Integer.parseInt(args[2]);
+			//numThreads = Integer.parseInt(args[0]);
+			//numAgents = Integer.parseInt(args[1]);
+			//numGenerations = Integer.parseInt(args[2]);
 		}
 		catch(NumberFormatException nfe){
 			System.err.println(nfe);
