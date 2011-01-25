@@ -5,7 +5,7 @@ Description:	An agent will contain all the information about which actions
 				performed, with 8 different actions: Search for Raw Materials
 				(RM), Risky Search for RMs, Produce Low-Quality Goods 
 				(LQG), Produce Medium-Quality Goods (MQG), Produce High-Quality
-				Goods (HQG), Sell Goods, Sell Goods in Risky com.kurtzg.bizsim.Environment, and
+				Goods (HQG), Sell Goods, Sell Goods in Risky Environment, and
 				Store Unused Goods (UG). After 100 days, all the agents in a
 				generation will be assessed for their overall performance.
 				A new generation of agents is spawned and the process repeated
@@ -61,6 +61,6 @@ User Interface Details:
 					generation
 					> total number of days in a performance assessment period
 					> Possibly Others
-				> Start, Stop, Restart, Step, Save com.kurtzg.bizsim.Agent Information, Save
-				com.kurtzg.bizsim.Environment State, and Save Everything will all be actions
+				> Start, Stop, Restart, Step, Save com.Agent Information, Save
+				Environment State, and Save Everything will all be actions
 				the user can perform on a simulation
